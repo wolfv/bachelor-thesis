@@ -13,32 +13,39 @@ The BeachBot is a mobile, autonomous drawing robot for large scale sand art. Its
 
 \section{Introduction}
 \subsection{The BeachBot Project}
-\textsl{•}
+\textsl{?}
 \section{Requirements and Inspiration}
 
-... Show Pictures of the original sand art ... 
+% here you say that the project consists of a GUI and an algorithm.
 
-\subsection{Input}
-\subsection{Output}
-\subsection{User Interface}
-
-\section{Algorithms}
-
-\subsection{Filling}
-\subsubsection{Straight Skeleton}
-
-\subsubsection{Optimal Convex Partitioning}
+\section{Path planning algorithms}
+\subsection{Algorithm overview}
+% here you set the main requirements connected, as short as possible, no sharp angles etc)
+\subsection{Image structure}
+% you discuss the lines, closed lines, filled polygons
+% then you explain the structure that you work on elements separately and the connect them with TSP.
+\subsection{Polygon filling}
+\subsubsection{Related work}
+	% all the algorithms go here
+\subsubsection{Straight Skeleton Filling}
+	% your algorithm
 \subsubsection{Back and Forth Filling}
+	% your algorithm. \subsubsection{Optimal Convex Partitioning} goes here without a special subsection for it
 
-\subsection{Traversing}
-\subsubsection{TSP}
-\subsubsection{LKH}
+\subsection{Path Generarion}
+% state: we have 2 global problems
+\subsubsection{Traveling Salesman Problem}
+% general definition
+% all three methods we tried, including LKH
+\subsubsection{Adaptation of Traveling Salesman Problem for the Algorithm}
+% how do you solve the problems of the closed loop in polygon and the constraint of returning to the start point
 
-\subsection{Connecting}
-\subsubsection{Beziér Splines}
+\subsection{Smooth line connections}
+\subsubsection{Bezi�r Splines}
 \subsubsection{Spiro Splines}
 
 \section{Implementation}
+\subsection{Input}	% svg files, why vector is better than raster
 \subsection{SVG Parser}
 \subsection{Tree Container}
 \subsection{Preprocessing}
