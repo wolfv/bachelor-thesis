@@ -1,6 +1,6 @@
 \chapter{Requirements and Inspiration}
 
-The BeachBot project itself was inspired by the images of sand artists like Peter Donnelly and Andres Amador, who create large scale sand art on beaches using a rake. Some of the imagery that we found online can be seen in \autoref{fig:sandart_inspiration}.
+The BeachBot project itself was inspired by the images of sand artists like Peter Donnelly and Andres Amador, who create large scale sand art at beaches using a rake. Some of the imagery that we found online can be seen in \autoref{fig:sandart_inspiration}.
 
 \begin{figure}
 \centering
@@ -21,3 +21,17 @@ The BeachBot project itself was inspired by the images of sand artists like Pete
 \caption{Various beach drawings by artists}
 \label{fig:sandart_inspiration}
 \end{figure}
+
+Since our goal was to create drawings similar to those of the artists, we derived our requirements from these sample images.
+
+First of all, and probably the easiest, the BeachBot should be able to draw lines. But even more important is the support of filled areas. While driving lines or curves is straight forward, there is no easy solution how to derive the path for filled areas. Not only should the area be covered to the highest extent, the drawing process should look interesting and artistic to spectators as well (unlike, for example, a printer).
+
+Derived from the pictures is also the requirement that the BeachBot should only be able to draw in two colors. Gradients or differently colored areas are not needed.
+
+Crossing lines or filled areas should be prohibited as good as possible since the balloon wheels and also the front wheels leave visible marks on the raked sand (a humanoid has a huge advantage here, since it can jump over the drawn areas). The effect of driving over the drawing depends on the scale. If the drawing is very big, it does not matter much if part of the image is crossed out. 
+
+The input of the path generator should not only be computer readable, but also human editable. Typing in endless lists of coordinates would be tedious in the long run, and having a difficult format to work with would make it hard to collaborate with artists, for example. Therefore the requirement to be able to use a modern graphics editor tool to work with was set. To conform to this requirement we soon decided to use \textit{Inkscape}\footnote{\url{http://inkscape.org}}, a popular open source vector graphics editor, as our input creation tool of choice. Further discussion about vector graphics as input and the steps to integrate a standardized vector graphics format into the path generator are explained in \autoref{sec:why_vector} and \autoref{sec:implementation_svg} respectively.
+
+During the testing phase it was found out, that some of the generated paths needed some extra care by humans. To be able to easily edit the output of the generator program a graphical user interface should be created to work with the output of the generator program. 
+
+In the following sections it will be shown how these requirements were fullfilled and to which extent.
