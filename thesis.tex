@@ -3,6 +3,10 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{csquotes}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[hidelinks]{hyperref}
 
 % ETHASL package
 % TODO Choose options according to your project
@@ -44,50 +48,68 @@
 \author{Wolf Vollprecht}
 \title{Path Generation for a Mobile Drawing Robot}
 
-\begin{abstract}
-The BeachBot is a mobile, autonomous drawing robot for large scale sand art. Its primary purpose is the entertainment of beachgoers. The goal of this thesis was to develop and evaluate algorithms to automatically generate suitable trajectories to draw arbitrary images on the canvas. Main challenges have been to find a trajectory that reduces the drawing time and to make watching the drawing process appealing.
-\end{abstract}
+\input{chapters/preface}
+\cleardoublepage
+\input{chapters/abstract}
+\cleardoublepage
+\input{chapters/symbols}
+\cleardoublepage
 
+\tableofcontents
+
+\pagestyle{fancy}
+\pagenumbering{arabic}
 \include{chapters/introduction}
 
-\chapter{Requirements and Inspiration}
+\include{chapters/requirements_inspiration}
+
 
 % here you say that the project consists of a GUI and an algorithm.
 
-\chapter{Path planning algorithms}
-\subsection{Algorithm overview}
+\chapter{Path Planning Algorithms}
+\section{Algorithm Overview}
 % here you set the main requirements connected, as short as possible, no sharp angles etc)
-\subsection{Image structure}%go
+\section{Image Structure}%go
 % you discuss the lines, closed lines, filled polygons
 % then you explain the structure that you work on elements separately and the connect them with TSP.
-\subsection{Polygon filling}
-\subsubsection{Related work}
+\section{Polygon Filling}
+\subsection{Related Work}
 	% all the algorithms go here
-\subsubsection{Straight Skeleton Filling}
+\subsection{Straight Skeleton Filling}
 	% your algorithm
-\subsubsection{Back and Forth Filling}
+\subsection{Back and Forth Filling}
 	% your algorithm. \subsubsection{Optimal Convex Partitioning} goes here without a special subsection for it
 
-\subsection{Path Generarion}
+\section{Path Generation}
 % state: we have 2 global problems
-\subsubsection{Traveling Salesman Problem}
+\subsection{Traveling Salesman Problem}
 % general definition
 % all three methods we tried, including LKH
-\subsubsection{Adaptation of Traveling Salesman Problem for the Algorithm}
+\subsection{Adaptation of Traveling Salesman Problem for the Algorithm}
 % how do you solve the problems of the closed loop in polygon and the constraint of returning to the start point
 
-\subsection{Smooth line connections}
+\section{Smooth line connections}
 \subsubsection{Beziér Splines}
 \subsubsection{Spiro Splines}
 
-\section{Implementation}
-\subsection{Input}	% svg files, why vector is better than raster
-\subsection{SVG Parser}
-\subsection{Tree Container}
-\subsection{Preprocessing}
-\subsection{Implementation of the Algorithms}
-\subsection{Postprocessing}
-\subsection{User Interface}
+\chapter{Implementation}
+\section{Input}	% svg files, why vector is better than raster
+\section{SVG Parser}
+\section{Tree Container}
+\section{Preprocessing}
+\section{Implementation of the Algorithms}
+\section{Postprocessing}
+\section{User Interface}
 
 \chapter{Conclusion}
+\cleardoublepage
+
+\appendix
+\input{chapters/appendix_text}
+\cleardoublepage
+
+\bibliographystyle{ieeetr}
+\bibliography{bibliography/references}
+\addcontentsline{toc}{chapter}{Bibliography}
+
 \end{document}
