@@ -1,27 +1,63 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[10pt,twoside,a4paper]{report}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+
+% ETHASL package
+% TODO Choose options according to your project
+% som/bt/st/mt: Studies on Mechatronics, Bachelor Thesis, Semester Thesis, Master Thesis
+% fs/hs: Spring term, Autumn term
+% german/english: German/English
+\usepackage[bt,fs,english]{packages/ethasl}
+
+% Activate for german language
+%\usepackage{german}
+%\usepackage{ae}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LaTeX preamble
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{preambles/asl_preamble}
+
+
+\title{Path Generation for a Mobile Drawing Robot}
+%\subtitle{bla bla bla}
+
+% TODO Add name of the authors
+\studentA{Wolf Vollprecht}
+% \studentC{Student 3}
+
+% TODO Add name of the supervisors
+\supervisionA{Nikolay Kobyshev}
+\supervisionB{Philipp Krüsi}
+%\supervisionC{Supervisor C}
+
+% TODO Change if necessary
+\projectYear{\the\year}
+\begin{document}
+
+\maketitle
+\pagestyle{plain}
+\pagenumbering{roman}
+
 \author{Wolf Vollprecht}
 \title{Path Generation for a Mobile Drawing Robot}
-\begin{document}
 
 \begin{abstract}
 The BeachBot is a mobile, autonomous drawing robot for large scale sand art. Its primary purpose is the entertainment of beachgoers. The goal of this thesis was to develop and evaluate algorithms to automatically generate suitable trajectories to draw arbitrary images on the canvas. Main challenges have been to find a trajectory that reduces the drawing time and to make watching the drawing process appealing.
 \end{abstract}
 
-\section{Introduction}
-\subsection{The BeachBot Project}
-\textsl{?}
-\section{Requirements and Inspiration}
+\include{introduction}
+
+\chapter{Requirements and Inspiration}
 
 % here you say that the project consists of a GUI and an algorithm.
 
-\section{Path planning algorithms}
+\chapter{Path planning algorithms}
 \subsection{Algorithm overview}
 % here you set the main requirements connected, as short as possible, no sharp angles etc)
-\subsection{Image structure}
+\subsection{Image structure}%go
 % you discuss the lines, closed lines, filled polygons
 % then you explain the structure that you work on elements separately and the connect them with TSP.
 \subsection{Polygon filling}
@@ -41,7 +77,7 @@ The BeachBot is a mobile, autonomous drawing robot for large scale sand art. Its
 % how do you solve the problems of the closed loop in polygon and the constraint of returning to the start point
 
 \subsection{Smooth line connections}
-\subsubsection{Bezi�r Splines}
+\subsubsection{Beziér Splines}
 \subsubsection{Spiro Splines}
 
 \section{Implementation}
@@ -53,5 +89,5 @@ The BeachBot is a mobile, autonomous drawing robot for large scale sand art. Its
 \subsection{Postprocessing}
 \subsection{User Interface}
 
-\section{Conclusion}
+\chapter{Conclusion}
 \end{document}
