@@ -6,6 +6,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage[hidelinks]{hyperref}
+\usepackage[]{algorithm2e}
 
 % ETHASL package
 % TODO Choose options according to your project
@@ -101,7 +102,7 @@ Over time several surface coverage algorithms have been developed, and some dist
 
 Coverage algorithms exist for applications like autonomous vaccuum cleaners or autonomous lawn mowers, but also search and rescue robotic applications usually and they usually do not care if they visit the same spot twice. The target for those algorithms is rather to achieve complete coverage of an previously unknown terrain in sensible time. Usually, the complete surface coverage algorithms in are also connected with online map generation techniques \textit{SLAM}, whereas the path generation for the BeachBot should happen offline.
 
-However, in agricultural applications some interesting algorithms have been found, which served as inspiration for the explorations presented in this thesis. Especially \citep{oksanen2007path}, who hinted at exploiting the straight skeleton algorithm to generate the inset polygons. An optimization strategy is employed to find the shortest trajectory through the field by repeatedly offsetting the remainding shape and traversing all possible ways off filling the shape. The algorithm is relatively computing intensive, what might be justified when using huge agricultural machines but what was not necessary for the goals of this thesis as the benefit of this optimization would be relatively small.
+However, in agricultural applications some interesting algorithms have been found, which served as inspiration for the explorations presented in this thesis. Especially \citep{ROB:ROB20300}, who hinted at exploiting the straight skeleton algorithm to generate the inset polygons. An optimization strategy is employed to find the shortest trajectory through the field by repeatedly offsetting the remainding shape and traversing all possible ways off filling the shape. The algorithm is relatively computing intensive, what might be justified when using huge agricultural machines but what was not necessary for the goals of this thesis as the benefit of this optimization would be relatively small.
 
 Another field where trajectories have to be generated is in \textit{Computer Aided Machining}. The process of removing layers of material from a block of metal is quite similar (though inverse, usually) to what is achieved in this thesis. Many publications deal with the problem of multi-axis milling machines which are far more complex and are also able to go over the machined surface without problem because they can lift the machnining head -- something that is not possible with the autonomous ground robot. 
 
@@ -126,22 +127,111 @@ During the creation of the straight skeleton, two events can happen:
 
 The straight skeleton is similar to the median axis of a polygon, but unlike the median axis it is not defined to have a constant distance to the polygon edges.
 
-For the case of this thesis, the most interesting property of the straight skeleton is the ability to easily obtain inset polygons. The inset polygons are used to create a spiral fill for the polygons.
+For the case of this thesis, the most interesting property of the straight skeleton is the ability to easily obtain inset polygons. The inset polygons are used to create a spiral fill for the polygons. The procedure is as follows:
 
+\begin{itemize}
+\item[(0)] The straight skeleton is generated
+\item[(1)] The inset polygon is created
+\item[(2)] If a split event has happened, then it is decided which polygon should be used to extend the current spiral (that is the one with the closer point to our current position). All the others are recursively filled in the same way. Additionally, a starting point to the spiral is passed, so that the beginning of the next spiral will be close to the current one. (The procedure restarts with the split polygon as input at (0)).
+\item[(3)] The $n+1$ vertex of the inset polygon is appended to the current spiral
+\item[(4)] An inset polygon is generated with inset length divided by number of vertices. Through dividing the inset length (which is predefined, usually as one rake width) by the number of vertices in the polygon, we make sure that one revolution of the spiral will travel only one rake distance.
 
+\end{itemize}
 
+%\begin{algorithm}[H]
+%\SetKwFunction{FRecurs}{FillPolygon}
+%\Fn(){\FRecurs{some args}}{
+% \KwData{Polygon P, Startpoint SP, RakeWidth}
+% \KwResult{Single trajectory}
+% CurrPoint = findNearestPoint(SP, P)\;
+% CurrOffset = RakeWidth / P.numberVertices\;
+% S = generateStraightSkeleton(P)\;
+% O = generateOffsetPolygons(CurrOffset, S)\;
+% \While{$O.numberOfPolygons > 0$}{
+%  \If{$O.numberOfPolygons > 1$} {
+%	P = findCloserPolygon(O, CurrPoint)\;
+%  }
+% }
+% \caption{How to write algorithms}
+%\end{algorithm}
 
-	% your algorithm
+The algorithm is both displayed in pseudo code and graphically. 
+
+\begin{figure}[htbp]
+	\centering
+    \begin{subfigure}[b]{0.45\textwidth}
+    		\includegraphics[width=\textwidth]{images/algorithms/spiral_fill/2.pdf}
+		\caption{The first inset polygon and the first part of the spiral line}
+    \end{subfigure}
+    ~
+    \begin{subfigure}[b]{0.45\textwidth}
+    		\includegraphics[width=\textwidth]{images/algorithms/spiral_fill/3.pdf}
+    		\caption{Next inset polygon generated}
+    \end{subfigure}\\
+    \begin{subfigure}[b]{0.45\textwidth}
+    		\includegraphics[width=\textwidth]{images/algorithms/spiral_fill/4.pdf}
+    		\caption{The polygon right before the \textit{split} happens}
+    \end{subfigure}~
+    \begin{subfigure}[b]{0.45\textwidth}
+    		\includegraphics[width=\textwidth]{images/algorithms/spiral_fill/done.pdf}
+    		\caption{After split, next polygon was found for continuing the current spiral}
+
+    \end{subfigure}
+        \begin{subfigure}[b]{0.45\textwidth}
+    		\includegraphics[width=\textwidth]{images/algorithms/spiral_fill/after_done_2.pdf}
+    		\caption{Continuing spiral 1 and starting the second spiral. Note how the start point of the second spiral is the closest point to the endpoint of the first.} \label{splitevent}
+    \end{subfigure}
+\\
+        \begin{subfigure}[b]{0.45\textwidth}
+    		\includegraphics[width=\textwidth]{images/algorithms/spiral_fill/complete_done.pdf}
+    		\caption{The completed spiral with all inset polygons removed.}
+    \end{subfigure}
+	\caption{Generating the fill spiral. Note that this is only an example for illustration purposes. Of course, the density of inset polygons for a real application is much higher.} \label{fig:insetting}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{images/algorithms/spiral_fill/spiral_real.pdf}
+\caption{Generated spiral} \label{fig:gen_spiral}
+\end{figure}
+
 \subsection{Back and Forth Filling}
+
+This fill method is quite straight forward: The polygon is filled by a number of lines that are parallel to each other and clipped at the polygon edges. 
 	% your algorithm. \subsubsection{Optimal Convex Partitioning} goes here without a special subsection for it
 
 \section{Path Generation}
-% state: we have 2 global problems
+As already mentioned, to finally create a drawing all elements have to be connected by support trajectories where the rake is lifted. The supporting paths should have two properties: The total sum of all support paths should be as small as possible and the curvature of the connections should be limited.
+
+As previously defined, a drawing consists of the three different types: Lines, polygons and filled polygons. Lines and polygons differ in the way they can be connected, as illustrated in \autoref{fig:connect}. A line can be entered or exited on both ends and is traversed in a previously unknown direction. A polygon however can be entered at any vertex, but can only be exited at the same so that the polygon is closed. Filled polygons work the same as the regular polygon in that sense, since the spiral and the back and forth filling create a polyline that is inserted into the filled polygon.
+
+\begin{figure}
+\includegraphics[width=0.8\textwidth]{images/path_planning/traversal.pdf}
+\caption{Possible entry- and exit vertices and direction of traversal for polylines and polygons. Note that the polygon could also be traversed in clockwise direction.}
+\end{figure}
+
 \subsection{Traveling Salesman Problem}
+
+The Traveling Salesman Problem (TSP) is the problem of finding the minimum-weight Hamiltonian Circuit in a weighted graph. A weighted graph is a graph where every edge between two vertices has a certain weight. The Hamiltonian Circuit is defined as a tour through the graph, that travels to every vertex exactly once. It is called salesman problem because in the historical context the vertices were cities and the salesman, seeking to minimize the distance traveled to visit all the cities in a given tour, would have liked to get a solution for this problem. However, one of the properties that make this problem hard is that it is NP-hard. If no heuristic is used, the amount of solutions that have to be searched in order to test all available possibilities is $n!$.
+
+The TSP can be subcategorized in three categories: 
+
+\begin{description}
+\item[Symmetric] A TSP is symmetric if all distances between every node pair are symmetric (equal) in both directions from $A \leftrightarrows B$.
+\item[Metric] In a metric traveling salesman problem, all distances conform to the triangle inequality $c \leq a + b$ which is, for example, true if all distances are calculated using the euclidean distance formula between two points: $d = \sqrt{(x_1 -x_2)^2 + (y_1 - y_2)^2}$ 
+\item[Asymmetric] If the weights are different from $A \rightarrow B$ than from $B \rightarrow A$ then the TSP is assymetric. Of course, the triangle inequality cannot be fulfilled anymore.
+\end{description}
+
+The simplest heuristic to the TSP is the nearest neighbour search. From a given startpoint the nearest, unvisited vertex is searched and connected. This is done until no more unvisited elements exist. Positive about the nearest neighbour approach is that the complexity is only growing linear to the search size. However, the obtained solutions are often of unsatisfying quality.
+
+Another popular heuristic is the branch and bound method. It works by splitting the set of possible solution into two halves and calculating a upper and lower bound for both. If the upper bound of the first is lower than the lower bound of the second, the second is discarded. During the course of this thesis a variant of the depth-first branch and bound search was implemented. First, the graph was traversed until a tour was completed. Afterwards, another tour (in order) was recursively started. As soon as the traveled distance of the entire tour in that branch got higher than the current minimum tour, the branch is discared. While this already reduces the search space, the effect becomes relatively small on larger problems (e.g. the first 6 out of 15 nodes might only seldomly span a tour which distance is higher than the current minimum, and it gets only worse).  It must be said, that the implementation was not very mature, and it actually produces an optimal tour in the current implementation, which is not desired in a heuristic. With more level-wise bounds it could have been a lot more efficient. 
+
+The final solution to the minimum connection problem was to use a state of the art TSP solver\cite{helsgaun2000effective}, which employs the Lin-Kernhighan-Heuristic\cite{kernighan1970efficient} to approximately solve the Traveling Salesman Problem. It is, unlike many other TSP solver implementations that require the triangle inequality to hold, also well suited to solve assymetric problems.
 % general definition
 % all three methods we tried, including LKH
 \subsection{Adaptation of Traveling Salesman Problem for the Algorithm}
-% how do you solve the problems of the closed loop in polygon and the constraint of returning to the start point
+
+
 
 \section{Smooth line connections}
 \subsubsection{Beziér Splines}
