@@ -291,7 +291,23 @@ Since vector graphics is only the concept a file format had to be specified as w
 
 \section{SVG Parser}
 
+The main part of the SVG specification that we needed to implement is the path parsing. A path, in SVG, is represented by a sequence of commands. A command is a lower- or uppercase letter followed by a list of coordinates
+\footnote{\url{http://www.w3.org/TR/SVG/paths.html}}. Coordinates following uppercase letters indicate \textit{absolute} coordinates and lowercase letter are followed by \textit{relative} coordinates. It is stateful in the way that for correct parsing the previous coordinate has to be known, except for the \texttt{M} (Move To) command.
 
+A not complete list of possible commands is listed below:
+
+\begin{description}
+\item[\texttt{[M/m] (x,y)+}] Move To command. Starts a new (sub-)path at x,y.
+\item[\texttt{[L/l] (x,y)+}] Line To command. Draws a straight line from the previous coordinate to the current coordinate.
+\item[\texttt{[C/c] (x1, y1, x2, y2, x3, y3)+}] Curve To command. Defines a cubic Beziér curve with 4 control points.
+\item[\texttt{Z}] Closes the element.
+\end{description} 
+
+The SVG Parser is implemented in the Python programming language. After an initial attempt to use an implementation by ourselves, it reached a certain limit of complexity that was needed to deal with output produced by Inkscape, and a rewrite would have been imminent. Our implementation did not pay respect to elementwise transforms nor to inheritance of group transforms, where a parsing tree structure would be needed. Luckily, a good implementation of all necessary features for the path generation was found online, called \enquote{svg} \footnote{\url{https://github.com/cjlano/svg}}.
+
+It was enhanced by an attribute parser and some smaller changes to the inner workings were made to produce the necessary output. The SVG parser also has functions to reduce the Beziér splines to polygon by evaluating the polynomial at certain intervals of $t$. The resulting points are not equally spaced, which is a property of Beziér curves.
+
+A wrapper script was created that exports two functions to the main path generator and passes the parsed objects.
 
 \section{Tree Container}
 \section{Preprocessing}
