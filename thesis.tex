@@ -7,7 +7,7 @@
 \usepackage{subcaption}
 \usepackage[hidelinks]{hyperref}
 \usepackage[]{algorithm2e}
-
+\usepackage{fontspec}
 % ETHASL package
 % TODO Choose options according to your project
 % som/bt/st/mt: Studies on Mechatronics, Bachelor Thesis, Semester Thesis, Master Thesis
@@ -226,15 +226,38 @@ The simplest heuristic to the TSP is the nearest neighbour search. From a given 
 
 Another popular heuristic is the branch and bound method. It works by splitting the set of possible solution into two halves and calculating a upper and lower bound for both. If the upper bound of the first is lower than the lower bound of the second, the second is discarded. During the course of this thesis a variant of the depth-first branch and bound search was implemented. First, the graph was traversed until a tour was completed. Afterwards, another tour (in order) was recursively started. As soon as the traveled distance of the entire tour in that branch got higher than the current minimum tour, the branch is discared. While this already reduces the search space, the effect becomes relatively small on larger problems (e.g. the first 6 out of 15 nodes might only seldomly span a tour which distance is higher than the current minimum, and it gets only worse).  It must be said, that the implementation was not very mature, and it actually produces an optimal tour in the current implementation, which is not desired in a heuristic. With more level-wise bounds it could have been a lot more efficient. 
 
-The final solution to the minimum connection problem was to use a state of the art TSP solver\cite{helsgaun2000effective}, which employs the Lin-Kernhighan-Heuristic\cite{kernighan1970efficient} to approximately solve the Traveling Salesman Problem. It is, unlike many other TSP solver implementations that require the triangle inequality to hold, also well suited to solve assymetric problems.
+The final solution to the minimum connection problem was to use a state of the art TSP solver\cite{helsgaun2000effective}, which employs the Lin-Kernhighan-Heuristic\cite{kernighan1970efficient} (LKH) to approximately solve the Traveling Salesman Problem. It is, unlike many other TSP solver implementations that require the triangle inequality to hold, also well suited to solve assymetric problems.
 % general definition
 % all three methods we tried, including LKH
 \subsection{Adaptation of Traveling Salesman Problem for the Algorithm}
 
+To find a suited tour with the generic LKH solver, the correct weights for the graph have to be specified. This happens in logical steps:
+
+\begin{itemize}
+\item On polylines, all vertices that are not the first or last node are removed, since they can never be accessed without entering at either the first or last node 
+\item Polygons can be entered at any node. However, once entered, the polygon cannot be exited at any location but most be traversed completely. To enforce this, the weights on the polygon edges are set to be zero for the next vertex in clockwise direction and infinity in for all other nodes of the polygon.
+\item Every node is only visited once. This leads to problems in polygons, where the tour should be closed. There are two possible solutions: Double cities or weight shifting. Since the double cities approach is doubling the number of cities it is clearly the less optimal approach. Because it is known that entering at node $n$ will result in the visitor ending up at node $n-1$ (all edges are zero), using the weight shifting method, the outgoing weights of the polygon at node $n$ are shifted to node $n-1$. Thereby, the elementwise symmetry is restored and a optimal solution can be found with a generic TSP solver. In a post processing step, the polygon is closed again.
+\item All other connections 
+\end{itemize}
+
+A regular TSP tour is closed. This implies that a regular tour has a tendency to go back to the starting point after diverging into another direction at the beginning. The solution that was found is to enforce a defined start point to be inserted. The outgoing weights of the start point are either euclidean distances or defined to be the same to every node in the graph. If they are euclidean, chances are very high that the starting line is the nearest neighbour. If the outgoing weights are all defined to be $1$ the LKH can find the best suited start point on it's own because the startpoint will not induce any preference for any of the nodes.
+
+The ingoing weights for the startpoint are chosen to be equal for all nodes. Thus, the TSP will never optimize towards traveling back to the start point.
+
+\section{Smooth Line Connections}
+
+While not required by the robot kinematics of the BeachBot, generating smooth connections is beneficial to the path converter that translates the generated rake path into a robot path that is drivable by the bot. If the curvature at a given point in the connection is too high, it is not possible for the path converter to find a converging solution which makes tedious manual work needed to adjust the curvature of the connections until the converter is able to find a solution. The rounded connections would also create a nice visual effect for spectators.
+
+Ideally a way would have to be found that limits the curvature of the connection path.
+
+Curvature is defined as the inverse of the radius of the circle that the tangent produces at any given point in the curve. For a two dimensional curve, the curvature $\kappa$ is defined as 
+$$\kappa = \frac{|x'y''-y'x''|}{(x'^2+y'^2)^{3/2}}$$
 
 
-\section{Smooth line connections}
 \subsubsection{Beziér Splines}
+
+A first approach to generate more curved connections was to use beziér splines.
+
 \subsubsection{Spiro Splines}
 
 \chapter{Implementation}
