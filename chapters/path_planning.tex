@@ -167,7 +167,7 @@ To find a suited tour with the generic LKH solver, the correct weights for the g
 
 \begin{itemize}
 \item On polylines, all vertices that are not the first or last node are removed, since they can never be accessed without entering at either the first or last node 
-\item Polygons can be entered at any node. However, once entered, the polygon cannot be exited at any location but most be traversed completely. To enforce this, the weights on the polygon edges are set to be zero for the next vertex in clockwise direction and infinity in for all other nodes of the polygon.
+\item Polygons can be entered at any node. However, once entered, the polygon cannot be exited at any location but must be traversed completely. To enforce this, the weights on the polygon edges are set to be zero for the next vertex in clockwise direction and infinity for all other nodes of the polygon.
 \item Every node is only visited once. This leads to problems in polygons, where the tour should be closed. There are two possible solutions: Double cities or weight shifting. Since the double cities approach is doubling the number of cities it is clearly the less optimal approach. Because it is known that entering at node $n$ will result in the visitor ending up at node $n-1$ (all edges are zero), using the weight shifting method, the outgoing weights of the polygon at node $n$ are shifted to node $n-1$. Thereby, the elementwise symmetry is restored and a optimal solution can be found with a generic TSP solver. In a post processing step, the polygon is closed again.
 \item All other edge weights are the euclidean distances between the vertex pair
 \end{itemize}
@@ -208,3 +208,63 @@ They offer 4 different control points to control the shape of the curve. In cont
 \end{itemize}
 
 The author, Raph Levien, has licensed his implementation \footnote{libspiro: \url{http://www.levien.com/spiro/} } of spiro splines under the GPLv2, which makes it possible to be used by this thesis. The implementation is capable of being used for realtime editing. That guarantees that the curve generation would not be the bottleneck of the application in terms of time consumption. The output of the library is a set of Beziér curves which are easier to handle in regular graphics programs.
+
+\paragraph{Heuristic for Setting the Control Points}
+
+To find suitable locations for the spiro spline control points, a heuristic was used.
+
+All connection constraints can be expressed by 5 variables: Connection length ($d$), tangents with angles $\alpha$ and $\beta$ and the curvature limit $\kappa$, as shown in \autoref{fig:connection_vars}. For the calculation of the control points, the difference between the two angles was defined as $\delta = \alpha - \beta$. It equals the angle between the two tangent vectors. 
+
+Finding the first 4 points of the curve is straightforward: The first control point is a corner point at the endpoint of the first element. The second point is a straight-to-curve point, that is positioned an infinitesimally small distance in the direction of the tangent from the first point. This constrains the \enquote{outgoing} tangent. Vice versa, the same control points are set at the end of the curve, where the element that is connected with begins. Thus both tangent constrains are fullfilled. Because the spiros do not offer a direct way of setting the maximum and minimum curvatures, zero to two more control points have to be added. The curvature can be limited by positioning a $G^2$ control point at distance $2 * R$ from the start- and endpoint. This limits the curvature to the left and to the right to be the same. Since the highest curvature between the startpoint and the $G^2$ point would be a circular arc with radius $R$ this limits the curvature to $\kappa = 1/R$, as long as both $G^2$ points are keeping a distance of $2*R$ as well.
+
+The heuristic differentiates 3 cases:
+
+If the both tangent vectors $\alpha$ and $\beta$ have a similar direction and the circle that is described by them and $d$ has a radius that is in the range of $R < r < 2*R$ then no intermediate $G^2$ points are set because the connection will already be smooth and optimal.
+
+Otherwise, the $G^2$ points are set by elongating the tangent vector to $2*R$ and rotating it by $0.5 * \alpha$. This is done to reduce the size of the resulting curve, which is demonstrated in .. Fig ...
+
+As discussed, the two $G^2$ points, called $c_1$ and $c_2$ are closer than $2 * R$ to each other, the positions have to be recalculated. This happens by rotating the $c_1$ and $c_2$ points gradually in different direction until positions are found that conform to the distance constraint. By rotating bot points about the same angle, a certain symmetry is kept.
+
+If the distance $d$ is smaller than 
+
+\begin{figure}
+
+\usetikzlibrary{calc}
+
+\definecolor{cb3b3b3}{RGB}{179,179,179}
+\definecolor{ccccccc}{RGB}{204,204,204}
+\definecolor{cffffff}{RGB}{255,255,255}
+
+\begin{tikzpicture}[y=0.80pt,x=0.80pt,yscale=-1, inner sep=0pt, outer sep=0pt]
+\centering
+  \path[draw=black,line join=miter,line cap=butt,line width=0.800pt]
+    (96.0814,121.3474) -- (115.9166,172.6195) -- (330.7355,172.6195) --
+    (371.5287,119.1019);
+  \path[draw=black,line join=miter,line cap=butt,line width=0.800pt]
+    (115.9129,172.6241) -- (69.8665,172.6241);
+  \path[draw=cb3b3b3,dash pattern=on 0.34pt off 0.17pt,line join=miter,line
+    cap=butt,miter limit=4.00,dash phase=0.201pt,line width=0.800pt]
+    (330.6888,172.6195) -- (366.5496,172.6195);
+  \path[cm={{1.45393,0.0,0.0,1.45393,(-471.01666,-377.22731)}},draw=ccccccc,miter
+    limit=4.00,line width=0.550pt] (564.5997,360.8878)arc(-52.961:0.593:21.466);
+  \path[cm={{0.52395,0.0,0.0,0.52395,(41.81533,-25.47312)}},draw=cb3b3b3,miter
+    limit=4.00,dash phase=0.960pt,line width=1.527pt]
+    (94.9543,377.5908)arc(179.987:249.624:46.467);
+  \path[fill=black,line width=0.800pt] (94.482018,167.26112) node[above right]
+    (text4046) {$\alpha$};
+  \path[fill=black] (337.53653,168.90082) node[above right] (text4046-2)
+    {$\beta$};
+  \path[draw=black,line join=miter,line cap=butt,line width=0.800pt]
+    (114.8543,177.9195) -- (114.8543,193.7975);
+  \path[draw=black,line join=miter,line cap=butt,line width=0.800pt]
+    (114.8543,186.1205) -- (330.7957,186.1205);
+  \path[draw=black,line join=miter,line cap=butt,line width=0.800pt]
+    (330.7957,177.9195) -- (330.7957,193.7975);
+  \path[fill=cffffff,line width=0.800pt,rounded corners=0.0000cm]
+    (199.5575,177.5072) rectangle (228.2820,192.5707);
+  \path[fill=black,line width=0.800pt] (205.50471,192.37236) node[above right]
+    (text4081) {d};
+\end{tikzpicture}
+\caption{Variables for the connection between two elements}
+\label{fig:connections_vars}
+\end{figure}

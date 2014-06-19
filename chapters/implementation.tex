@@ -6,7 +6,7 @@ In contrast, vector graphics have infinite resolution because they define the im
 
 Due to the mentioned points it was easy to decide that vector graphics will be used as input for the path generator program. Several excellent editors are existing, such as Inkscape, which was already mentioned in the beginning, or Adobe® Illustrator®, which basically is a graphics industry standard.
 
-Since vector graphics is only the concept a file format had to be specified as well. A number of proprietary formats, like the Adobe® Illustrator® format (\texttt{.ai}) are available, but because of their proprietary nature were ruled out. The most widely supported format for vector graphics is the Scalable Vector Graphics (SVG) specification, which is an open standard format, defined by the SVG Working Group\cite{svgstandard}. Rendering SVG is supported in all major web browsers and most modern user interface toolkits such as QT or GTK+. SVG is based on the Extended Markup Language (XML), for which a number of proprietary and open source parsers are available, thus making it easy to build upon.
+Since vector graphics is only a concept, a file format had to be specified as well. A number of proprietary formats, like the Adobe® Illustrator® format (\texttt{.ai}) are available, but because of their proprietary nature have been ruled out. The most widely supported format for vector graphics is the Scalable Vector Graphics (SVG) specification, which is an open standard format, defined by the SVG Working Group\cite{svgstandard}. Rendering SVG is supported in all major web browsers and most modern user interface toolkits such as QT or GTK+. SVG is based on the Extended Markup Language (XML), for which a number of proprietary and open source parsers are available, thus making it easy to build upon.
 
 \section{SVG Parser}
 
@@ -43,8 +43,11 @@ Some common properties are:
 It is useful for accessing the polyon elements as well as the end of a polyline, which can be accessed by calling the
 function with \texttt{idx = -1;}.
 
-\item\item[\texttt{\textcolor{blue}{ElementPtr} * to, from;}]
-\item[\texttt{\textcolor{blue}{Point\_2} entryPoint, exitPoint}] Those two items keep track of the tour through the drawing. From and to are pointers to the previous and next element, exit- and entrypoint are the points on the element where the tour is entering and leaving.
+\item[\texttt{\textcolor{blue}{ElementPtr} * to, from;}]
+\item[\texttt{\textcolor{blue}{Point\_2} entryPoint, exitPoint}] Those two items keep track of the tour through the drawing. The pointers \texttt{from} and \texttt{to} keep track of the previous and next element, 
+\texttt{exitPoint}- and \texttt{entryPoint} are the points on the element where the tour is entering and leaving.
+
+\item[\texttt{\textcolor{blue}{TourConnector} enforcedConnection;}] An element can have enforced connections to at most two other elements. The tour connector class stores the exit- or entry node (it is not known in which direction a polyline is traversed) as well as the target element.
 
 \end{description}
 
