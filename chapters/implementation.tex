@@ -1,0 +1,63 @@
+\chapter{Implementation}
+\section{Input}	% svg files, why vector is better than raster
+For the implementation of the presented algorithms a input format had to be specified. As already mentioned in the requirements, it was desired that the input would be easy to edit for artists. That implies that a proper editing tool should be available. To create drawings basically two types of representation are existing: Raster images and vector graphics. Raster images work on a \textit{pixel} basis. Each pixel is saved as respective color value depending on the color space (grayscale, indexed or RGB are common). Lossy compression for raster images is available. Scaling raster graphics is limited by the resolution the image was saved in.
+
+In contrast, vector graphics have infinite resolution because they define the image in terms of mathematical functions. Vector graphics contain information about seperate elements where raster graphics do only contain color information and don't have any concept of \enquote{element}. That makes it easy to retrieve and store metadata and, for example, parse the color of a line or area.
+
+Due to the mentioned points it was easy to decide that vector graphics will be used as input for the path generator program. Several excellent editors are existing, such as Inkscape, which was already mentioned in the beginning, or Adobe® Illustrator®, which basically is a graphics industry standard.
+
+Since vector graphics is only the concept a file format had to be specified as well. A number of proprietary formats, like the Adobe® Illustrator® format (\texttt{.ai}) are available, but because of their proprietary nature were ruled out. The most widely supported format for vector graphics is the Scalable Vector Graphics (SVG) specification, which is an open standard format, defined by the SVG Working Group\cite{svgstandard}. Rendering SVG is supported in all major web browsers and most modern user interface toolkits such as QT or GTK+. SVG is based on the Extended Markup Language (XML), for which a number of proprietary and open source parsers are available, thus making it easy to build upon.
+
+\section{SVG Parser}
+
+The main part of the SVG specification that we needed to implement is the path parsing. A path, in SVG, is represented by a sequence of commands. A command is a lower- or uppercase letter followed by a list of coordinates
+\footnote{\url{http://www.w3.org/TR/SVG/paths.html}}. Coordinates following uppercase letters indicate \textit{absolute} coordinates and lowercase letter are followed by \textit{relative} coordinates. It is stateful in the way that for correct parsing the previous coordinate has to be known, except for the \texttt{M} (Move To) command.
+
+A not complete list of possible commands is listed below:
+
+\begin{description}
+\item[\texttt{[M/m] (x,y)+}] Move To command. Starts a new (sub-)path at x,y.
+\item[\texttt{[L/l] (x,y)+}] Line To command. Draws a straight line from the previous coordinate to the current coordinate.
+\item[\texttt{[C/c] (x1, y1, x2, y2, x3, y3)+}] Curve To command. Defines a cubic Beziér curve with 4 control points.
+\item[\texttt{Z}] Closes the element.
+\end{description} 
+
+The SVG Parser is implemented in the Python programming language. After an initial attempt to use an implementation by ourselves, it reached a certain limit of complexity that was needed to deal with output produced by Inkscape, and a rewrite would have been imminent. Our implementation did not pay respect to elementwise transforms nor to inheritance of group transforms, where a parsing tree structure would be needed. Luckily, a good implementation of all necessary features for the path generation was found online, called \enquote{svg} \footnote{\url{https://github.com/cjlano/svg}}.
+
+It was enhanced by an attribute parser and some smaller changes to the inner workings were made to produce the necessary output. The SVG parser also has functions to reduce the Beziér splines to polygon by evaluating the polynomial at certain intervals of $t$. The resulting points are not equally spaced, which is a property of Beziér curves. The points are, however, more densly spaced in regions where the curvature is higher and that is actually positive as the region with the most change gets the most attention. 
+
+A wrapper script was created that exports two functions to the main path generator and passes the parsed objects.
+
+\section{Element Polymorphism}
+
+An element container class exists from which three different classes are derived (corresponding to the three defined image elements). The classes are \texttt{PolyLineElementPtr}, \texttt{PolygonElementPtr} and \texttt{FilledPolygonElementPtr}.
+
+Some common properties are:
+
+\begin{description}
+
+\item[\texttt{\textcolor{blue}{int} getSize()}] Returns the size of the container holding the vertices.
+
+\item[\texttt{\textcolor{blue}{Point\_2} getFromIndex(\textcolor{blue}{int} idx)}] Returns the point at index. This feature is implemented as circulator by taking the modulo: 
+\texttt{return element[idx mod element.size()];}. 
+It is useful for accessing the polyon elements as well as the end of a polyline, which can be accessed by calling the
+function with \texttt{idx = -1;}.
+
+\item\item[\texttt{\textcolor{blue}{ElementPtr} * to, from;}]
+\item[\texttt{\textcolor{blue}{Point\_2} entryPoint, exitPoint}] Those two items keep track of the tour through the drawing. From and to are pointers to the previous and next element, exit- and entrypoint are the points on the element where the tour is entering and leaving.
+
+\end{description}
+
+They derive a number of virtual and pure virtual functions from the base class
+
+\section{Tree Container}
+
+All elements are sorted into a tree structure. The tree strucure was initially chosen to keep track of all containment 
+
+\section{Preprocessing}
+
+In the preprocessing phase of the program, the bounding box of all elements is calculated and they are scaled and translated to the field. An optional margin can be set to the field.
+
+\section{Implementation of the Algorithms}
+\section{Postprocessing}
+\section{User Interface}
