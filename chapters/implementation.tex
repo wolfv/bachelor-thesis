@@ -69,7 +69,11 @@ In the preprocessing phase of the program, the bounding box of all elements is c
 
 \section{Implementation of the Algorithms}
 
-All core geometric algorithms have been provided by the \textit{Computer Geometric Algorithms Library}\cite{cgal:eb-00a} (CGAL). 
+All core geometric algorithms have been provided by the \textit{Computer Geometric Algorithms Library}\cite{cgal:eb-00a} (CGAL).
+
+CGAL operates with Kernels, which implement the common types: Point\_2, Line\_2, Segment\_2,, Vector\_2 Polygon\_2 and some more. Since exact constructions are not necessary for our goals, the \texttt{CGAL::Exact\_predicates\_inexact\_constructions\_kernel} is used throughout the application, which stores all coordinates as double float values (and is thus limiting the exactness of constructions). The functions that are used the most in this implementation are \texttt{CGAL::intersect}, \texttt{transform} and \texttt{CGAL::squared\_distance}. Vector algebra is also simple thanks to operator overloading.
+
+CGAL contains algorithms for the straight skeleton methods\cite{cgal:c-sspo2-14a} as well as for the convex decomposition\cite{cgal:h-pp2-00a}.
 
 \section{Post Processing}
 
