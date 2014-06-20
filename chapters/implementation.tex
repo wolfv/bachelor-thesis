@@ -59,7 +59,7 @@ function with \texttt{idx = -1;}.
 
 They derive a number of virtual and pure virtual functions from the base class
 
-\section{Tree Container}
+	\section{Tree Container}
 
 All elements are sorted into a tree structure. The tree strucure was initially chosen to keep track of all containment 
 
@@ -68,7 +68,17 @@ All elements are sorted into a tree structure. The tree strucure was initially c
 In the preprocessing phase of the program, the bounding box of all elements is calculated and they are scaled and translated to the field. An optional margin can be set to the field.
 
 \section{Implementation of the Algorithms}
-\section{Postprocessing}
+
+All core geometric algorithms have been provided by the \textit{Computer Geometric Algorithms Library}\cite{cgal:eb-00a} (CGAL). 
+
+\section{Post Processing}
+
+After the complete trajectory for the drawing process was evaluated and, eventually modified, in the graphical user interface, the post processing step does two different things.
+
+First, the edges of the trajectory are rounded. The fill elements are receiving an inner rounding, whereas the outer elements (polygon boundaries) are rounded by analysing a threshold angle. If the angle is too sharp, the trajectory will create an outer loop so that the edges will stay sharp (illustrated in \autoref{fig:rounding}. Otherwise, the rounding is also on the inner side.
+x
+In the last step, all connecting curves are discretized to polylines and the complete trajectory is equally spaced with points and corresponding rake states, so that it can easily be handled by the \textit{Path Converter} (another bachelor thesis) or directly be passed to the point following controller of the BeachBot, .
+
 \section{User Interface}
 
 The graphical user interface (GUI) was implemented in \textit{Javascript}, or, more specifically in \textit{CoffeeScript}, which is a strict superset of Javascript. The \textit{paper.js} library was used for drawing and provides most of the abstractions used throughout the program. A python server is used as slim host of the main application. The application provides means to parse and send JSON serializations of the complete vector element tree, which are parsed in Javascript user interface. All data is sent and retrieved using asynchronous \texttt{GET} and \texttt{POST} requests (commonly referred to as \textit{AJAX}). This implemetation was chosen to allow for great flexibilty in terms of devices accessing the server. A seperate bachelor thesis was working on a Android tablet based touch interface to control the BeachBot. Since Android tablets are perfectly capable of including a \textit{WebView} component which could easily serve the \textit{HTML} and Javascript files developed in this bachelor thesis, integration of those two tools should be easy. The main program also compiles on the internal computer of the BeachBot, where the server could possibly run, allowing for a fully integrated system. As mentioned in the section about the \texttt{ElementPtr}, all elements have a unique identifier number which makes it easy to select them programmatically and what is used by several of the GUIs methods.

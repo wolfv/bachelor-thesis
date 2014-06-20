@@ -70,7 +70,35 @@ For the case of this thesis, the most interesting property of the straight skele
 
 \end{itemize}
 
-%\begin{algorithm}[H]
+\begin{algorithm}[H]
+\begin{algorithmic}
+\caption{Spiral Filling}\label{spiral_fill}
+
+\Function{createSpiralFill}{Polygon p, Point startPoint}
+
+\State $ss \gets \text{getStraightSkeleton}(p)$
+\State $lOffset = RakeWidth/p.size()$
+\If{$startPoint$} $currPoint \gets startPoint$ 
+\Else ~$ currPoint \gets p[0]$ 
+\EndIf
+\While{$insetPolys.size() \geq 1$}
+\If{$insetPolys.size() > 1$}
+	\State $closestPoly = searchClosestPolygon(insetPolys, currPoint)$
+	\ForAll{$\lbrace poly \in insetPolys | poly \not\in closestPoly\rbrace$}
+		\State $createSpiralFill(poly)$
+	\EndFor
+	\State $ss \gets getStraightSkeleton(closestPoly)$
+	\State $lOffset = RakeWidth/closestPoly.size()$
+	\State $insetPolys \gets getOffsetPolygons(ss, lOffset)$
+\EndIf
+\State $index \gets findClosestIndex(currPoint, insetPolys[0])$
+\State $currPoint \gets insetPolys[0].fromIndex(index + 1)$
+\State $result.append(currPoint)$
+\State $insetPolys \gets getOffsetPolygons(ss, lOffset)$
+\EndWhile
+\EndFunction
+
+\end{algorithmic}
 %\SetKwFunction{FRecurs}{FillPolygon}
 %\Fn(){\FRecurs{some args}}{
 % \KwData{Polygon P, Startpoint SP, RakeWidth}
@@ -85,7 +113,7 @@ For the case of this thesis, the most interesting property of the straight skele
 %  }
 % }
 % \caption{How to write algorithms}
-%\end{algorithm}
+\end{algorithm}
 
 The algorithm is both displayed in pseudo code and graphically. 
 
@@ -129,7 +157,15 @@ The algorithm is both displayed in pseudo code and graphically.
 
 \subsection{Back and Forth Filling}
 
-This fill method is quite straight forward: The polygon is filled by a number of lines that are parallel to each other and clipped at the polygon edges. 
+This fill method is quite straight forward: The polygon is filled by a number of lines that are parallel to each other and clipped at the polygon edges. The procedure takes an direction as input. 
+First, a starting point is searched. If the inclination of the direction is bigger than 45°, then the leftmost vertex, whereas if the inclination is smaller, the bottommost vertex is selected.
+
+Starting from the start point, lines are positioned with the specified direction and the polygon is tested for intersection. If two intersections for a given line are found, a line segment with those two points is added to the resulting trajectory.
+
+This method works very well for convex polygons, but has drawbacks for non-convex polygons, since a non convex polygon can have more than two intersections for any given line. Therefore it requires the polygon to be decomposed into convex parts. This happens through optimal convex partitioning with the dynamic programming algorithm by Greene. The produced result is a set of convex polygons of maximum size, which is good for the purpose of filling the shape.
+
+
+%et algorithm 
 	% your algorithm. \subsubsection{Optimal Convex Partitioning} goes here without a special subsection for it
 
 \section{Path Generation}
