@@ -24,9 +24,9 @@ A not complete list of possible commands is listed below:
 
 The SVG Parser is implemented in the Python programming language. After an initial attempt to use an implementation by ourselves, it reached a certain limit of complexity that was needed to deal with output produced by Inkscape, and a rewrite would have been imminent. Our implementation did not pay respect to elementwise transforms nor to inheritance of group transforms, where a parsing tree structure would be needed. Luckily, a good implementation of all necessary features for the path generation was found online, called \enquote{svg} \footnote{\url{https://github.com/cjlano/svg}}.
 
-It was enhanced by an attribute parser and some smaller changes to the inner workings were made to produce the necessary output. The SVG parser also has functions to reduce the Beziér splines to polygon by evaluating the polynomial at certain intervals of $t$. The resulting points are not equally spaced, which is a property of Beziér curves. The points are, however, more densly spaced in regions where the curvature is higher and that is actually positive as the region with the most change gets the most attention. 
+It was enhanced by an attribute parser and some smaller changes to the inner workings were made to produce the necessary output. The SVG parser also has functions to reduce Beziér splines to a polyline by evaluating the polynomial at certain, linearly distributed intervals of $t$. The resulting points are not equally spaced, which is a property of Beziér curves. The points are, however, more densly spaced in regions where the curvature is higher and that is actually positive as the region with the most change gets the most \enquote{attention}. 
 
-A wrapper script was created that exports two functions to the main path generator and passes the parsed objects.
+A wrapper script was created that exports two functions to the main path generator and passes the parsed objects.	
 
 \section{Element Polymorphism}
 
@@ -47,7 +47,13 @@ function with \texttt{idx = -1;}.
 \item[\texttt{\textcolor{blue}{Point\_2} entryPoint, exitPoint}] Those two items keep track of the tour through the drawing. The pointers \texttt{from} and \texttt{to} keep track of the previous and next element, 
 \texttt{exitPoint}- and \texttt{entryPoint} are the points on the element where the tour is entering and leaving.
 
-\item[\texttt{\textcolor{blue}{TourConnector} enforcedConnection;}] An element can have enforced connections to at most two other elements. The tour connector class stores the exit- or entry node (it is not known in which direction a polyline is traversed) as well as the target element.
+\item[\texttt{\textcolor{blue}{TourConnector} enforcedConnection[2];}] An element can have enforced connections to at most two other elements. The tour connector class stores the exit- or entry node (it is not known in which direction a polyline is traversed) as well as the target element.
+
+\item[\vv{int}{enforcedStartIndex}] Stores an optional enforced start index if the traversal of the element should be started at that this index.
+
+\item[\vv{int}{getType();}] returns element type (can be one of \texttt{EL\_POLYLINE}, \texttt{EL\_POLYGON}, \texttt{EL\_FILLED\_POLYGON}, which are defined in a enumeration).
+
+
 
 \end{description}
 
@@ -64,3 +70,20 @@ In the preprocessing phase of the program, the bounding box of all elements is c
 \section{Implementation of the Algorithms}
 \section{Postprocessing}
 \section{User Interface}
+
+The graphical user interface (GUI) was implemented in \textit{Javascript}, or, more specifically in \textit{CoffeeScript}, which is a strict superset of Javascript. The \textit{paper.js} library was used for drawing and provides most of the abstractions used throughout the program. A python server is used as slim host of the main application. The application provides means to parse and send JSON serializations of the complete vector element tree, which are parsed in Javascript user interface. All data is sent and retrieved using asynchronous \texttt{GET} and \texttt{POST} requests (commonly referred to as \textit{AJAX}). This implemetation was chosen to allow for great flexibilty in terms of devices accessing the server. A seperate bachelor thesis was working on a Android tablet based touch interface to control the BeachBot. Since Android tablets are perfectly capable of including a \textit{WebView} component which could easily serve the \textit{HTML} and Javascript files developed in this bachelor thesis, integration of those two tools should be easy. The main program also compiles on the internal computer of the BeachBot, where the server could possibly run, allowing for a fully integrated system. As mentioned in the section about the \texttt{ElementPtr}, all elements have a unique identifier number which makes it easy to select them programmatically and what is used by several of the GUIs methods.
+
+Three different view modes and four tools have been implemented which have proven to be helpful in the design of useful trajectories for the BeachBot.
+
+\subsection{Views} The \textit{Outline} view is the standard view, where all paths of the image are displayed with a stroke width of 2 pixels. A \textit{Realistic} view tries to approximate the real rake size of the generated trajectory by using a stroke width that corresponds to the real world dimensions. Empirical data shows that the conversion does work quite well. The connections can also be displayed differently. If \textit{Show Connections} is selected, all connecting trajectories are rendered in blue color on the screen. Selecting \textit{Simple Connection}, the connections are rendered as directed arrows, which is useful for changing and analyzing the TSP solution. \textit{No Connections} hides all the connecting trajectories. All view code was implemented clientside (in Javascript).
+
+\subsection{Tools}
+
+Paper.js offers a useful tool abstraction, which makes the creation of various tools very flexible. 4 different tools have been implemented:
+
+\begin{description}
+\item[Change Connection Tool] As mentioned, the \texttt{ElementPtr} can store enforced connections between elements. Selecting the first or last node of a polyline or any node of a polygon element, and subsequently the same on another element adds an enforced connection between those elements at the desired nodes, and also deletes any previous enforced connection between the node and any other element.
+\item[Shape Transitions Tool] The transitions, as they are a number of Beziér curves, sometimes have to be modified because they cross an area or show otherwise undesired behaviour. While for example the crossing of already drawn areas could also be mitigated in the code, it was not possible to do so in the scope of this bachelor thesis. The shape transitions tool offers a convenient way to so: Just like in vector graphcis programs the node can be selected, which then also shows its handles. The node itself can be moved, or the handles can be moved. However, the rotation of the handles (which influences the continuity of the curve, is kept so that both handles form a straight line (the length of the handle vector is not influenced by an operation on the other one).
+\item[Select Fill Tool] As discussed, two different fill mechanisms are available: The spiral fill and the back and forth fill. Selecting a convex segment of a partitioned polygon, a vector can be drawn that indictates the desired direction of back-and-forth fill for the selected segment. In the same way, the selected segment can also be chosen to be filled by a spiral by clicking the \textit{Use Spiral Fill} button.
+\item[Segmentation Tool] If the segmentation of a polygon is not as desired, the segmentation tool can be used to resegment the polygon. Drawing a line from any point to another sends a segmentation request to the server. If any of the filled polygons is intersecting with the drawn line segment, the polygon will be cutted along it, yielding two or more polygons. Afterwards, the optimal convex partitioning is executed on each of the new segments.
+\end{description} 

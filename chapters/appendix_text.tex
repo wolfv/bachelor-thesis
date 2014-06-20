@@ -1,2 +1,53 @@
 \chapter{Appendix}
 \label{sec:appendix}
+\section{Installation}
+
+The installation procedure for the installation of the path generator program under Ubuntu 14.04 is described below:
+
+\begin{enumerate}
+\item For running the application, the following dependencies have to be satisfied:
+\texttt{libcgal-dev, libboost1.54.0-all-dev, python2.7, libpython2.7-dev, build-essential, libeigen-dev, libjsoncpp-dev}. If the QT frontend should be installed, \texttt{libqt4-dev} has to be available. To be able to run the python server, the \texttt{flask} python library needs to be installed.
+\item Cloning the source code from \url{https://github.com/asl-beachbot/pathmaker}: \texttt{git clone https://github.com/asl-beachbot/pathmaker}.
+\item Running \texttt{cmake} with configuration options: \texttt{-DNOGUI=[ON/(OFF)]}, \texttt{-D32BIT=[ON/(OFF)]}. Round brackets indicate default value.
+\item If \texttt{cmake} was run successfully, \texttt{make} can produce either the python module by using the target \texttt{python/beachbot\_pathgen} or the standalone target, called \texttt{svg\_parser} by calling e.g. \texttt{make svg\_parser -j3}.
+\item If python version was built, starting the python server by calling \texttt{python python/server.py}.\\
+If standalone version was built, \texttt{./svg\_parser} will launch the standalone program.
+\end{enumerate}
+\newpage
+\paragraph{Command Line Flags}
+
+Command line flags can either be set as flags when the program is executed or can be set in the config file (the default file is \texttt{config.cfg} and \texttt{pythoncfg.cfg} for the server).
+The list of allowed options is:
+\texttt{
+  -h [ --help ]                        produce help message\\
+  -f [ --filename ] arg                SVG File for parsing\\
+  -r [ --round\_radius ] arg            set radius for corner rounding\\
+  -m [ --fill\_method ] arg             set fill method (1: wiggle or 2: spiral)\\
+  -s [ --scale\_for\_disp ] arg          scale for display\\
+  --angle\_step arg                     Interpolation stepsize for rounding \\
+                                       (e.g. 0.2 * PI)\\
+  -m [ --max\_interpol\_distance ] arg   Max distance for points \\
+  -d [ --display ]                     Open up the QT Window for inspection\\
+  -t [ --threshold\_round\_angle ] arg   Defines from which angle on it should be\\
+                                       rounded (or outer rounded)\\
+  -l [ --line\_distance ] arg           Line distance inside filled elements\\
+  --area\_deletion\_threshold arg        Maximum area of filling elements that \\
+                                       will get deleted \\
+  -c [ --config\_file ] arg             Use a different config file\\
+  --segmentation\_on arg                Turn on or off segmentation\\
+  --text\_export\_filename arg          Filename for export to textfile\\
+  --svg\_export\_filename arg            Filename for export to SVG File\\
+  --field\_width arg                    Width of field\\
+  --field\_height arg                   Height of field\\
+  --field\_offset arg                   Offset (margin) of field\\
+  --segment\_offset arg                 Offset of Segment (from partitioning)\\
+  --no\_tree\_ordering                   Disables ordering of the tree (Useful \\
+                                       when manual image from Timo!)\\
+  --number\_segments\_bezier\_connect arg Define the number of segments for bezier\\
+                                       interpolation)\\
+  --stop\_go\_outer                      Round (and outer round) outer contours \\
+                                       or stop-turn-go cycle?\\
+  --round\_connection\_threshold         Threshold for rounding connections \\
+                                       (otherwise just place point) [squared \\
+                                       length of point distance]
+}
