@@ -8,13 +8,13 @@
 \usepackage[hidelinks]{hyperref}
 
 %\usepackage[]{algorithm2e}
-
 \usepackage{algpseudocode}
 \usepackage{algorithm}
 
 \usepackage{fontspec}
 \usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
-
+\usepackage{todonotes}
+	
 \usepackage{tikz}
 \usetikzlibrary{calc}
 \usetikzlibrary{arrows}
@@ -81,8 +81,13 @@
 % here you say that the project consists of a GUI and an algorithm.
 
 \include{chapters/path_planning}
+\cleardoublepage
 
 \include{chapters/implementation}
+\cleardoublepage
+
+\include{chapters/results}
+\cleardoublepage
 
 \chapter{Conclusion}
 \cleardoublepage
