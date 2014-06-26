@@ -3,15 +3,15 @@
 
 The output of the path generator should be a single trajectory that completely connects and covers all elements of the drawing.
 
-Derived from the requirements, three different elements were identified as part of drawing (illustrated in \autoref{fig:elements_def}:
+Derived from the requirements, three different elements were identified as part of drawing (illustrated in \autoref{fig:elements_def}):
 
 \begin{description}
 \item[Polyline] A line consisting of $2$ to $n$ vertices
 \item[Polygon] A closed line, consisting of $2$ to $n$ vertices, where the last segment is a closing one. So that vertex $v_{n+1}$ equals $v_0$.
-\item[Filled Polygon] Defined in the same way as the polygon, except that the inner space should be filled by the generated trajectory. Another difference is that the filled polygon can also contain holes, which should not be covered and be excluded from the fill trajectory.
+\item[Filled Polygon] Defined in the same way as the polygon, except that the inner space should be filled by a generated trajectory. Another difference is that the filled polygon can also contain holes, which should not be covered and be excluded from the fill trajectory.
 \end{description}
 
-The path generation happens in three steps: First, the polygons that have to be filled are selected and the fill algorithm is seperately executed for each of the polygons with polygon specific settings. In a second step all of the drawing elements are connected by an open tour and tries to minimize the traveled distance by applying a traveling salesman heuristic. As last step, connections with limited curvature are generated to complete the trajectory.
+The path generation happens in three steps: First, the polygons that have to be filled are selected and the fill algorithm is seperately executed for each of the polygons with polygon specific settings. In a second step all of the drawing elements are connected by an open tour and a Traveling Salesman heuristic minimizes the total driving distance. As last step, the connections are shaped with curves that conform to  a curvature limit.
 
 Each of those steps will be discussed in detail in this section.
 
@@ -30,44 +30,145 @@ Each of those steps will be discussed in detail in this section.
 
 Over time several complete coverage algorithms have been developed, and some distinctions can be made. 
 
-One category of solutions for the surface coverage  was developed for robots that do not know the map beforehand and a variant of \textit{simultaneous localization and mapping} (SLAM) to gather knowledge of the environment. 
+One category of solutions for the surface coverage  was developed for robots that do not know the surroundings beforehand and use a variant of \textit{simultaneous localization and mapping} (SLAM) to gather knowledge of the environment. 
 
-Coverage algorithms exist for household applications like autonomous vaccuum cleaners or autonomous lawn mowers but also search and rescue robots usually and they  do not care if they visit the same spot twice. The target for those algorithms is rather to achieve complete coverage of an previously unknown terrain in sensible time. Usually, the complete surface coverage algorithms in are also connected with online map generation techniques \textit{SLAM}, whereas the path generation for the BeachBot should happen offline.
+Coverage algorithms exist for household applications like autonomous vacuum cleaners or autonomous lawn mowers but also search and rescue robots usually and they  do not care if they visit the same spot twice. The target for those algorithms is rather to achieve complete coverage of an previously unknown terrain in sensible time. Usually, the complete surface coverage algorithms in are also connected with online map generation techniques \textit{SLAM}, whereas the path generation for the BeachBot should happen offline.
 
 However, in agricultural applications some interesting algorithms have been found, which served as inspiration for the explorations presented in this thesis. Especially \citep{ROB:ROB20300}, who hinted at exploiting the straight skeleton algorithm to generate the inset polygons. An optimization strategy is employed to find the shortest trajectory through the field by repeatedly offsetting the remainding shape and traversing all possible ways off filling the shape. The algorithm is relatively computationally intensive, what might be justified when using large agricultural machines but what was not necessary for the goals of this thesis as the benefit of this optimization would be relatively small.
 
-Another field where trajectories have to be generated is in \textit{Computer Aided Machining} (CAM). The process of removing layers of material from a block of metal is quite similar (though inverse, usually) to what is achieved in this thesis. Many publications deal with the problem of multi-axis milling machines which are far more complex and are also able to move over the machined surface without problem because the machining head can be lifted -- something that is not possible with an autonomous ground vehicle. 
+Another field where trajectories have to be generated is in \textit{Computer Aided Machining} (CAM). The process of removing layers of material from a block of metal is quite similar (though inverse, usually) to what is achieved in this thesis. Many publications deal with the problem of multi-axis milling machines which are far more complex and are also able to move over the machined surface without problem because the machining head can be lifted -- something that is not possible with an autonomous ground vehicle.
 
 One interesting publication in the CAM field is \cite{kao1998optimal} that presents a method to reduce gaps that are present when simply offsetting a polygon with spirals. The presented method could be a possible future improvement to the spiral fill algorithm of \autoref{sec:spiral_fill}.
 
 The OpenCAM library has also been inspected...
 
 	% all the algorithms go here
+\subsection{Mathematical Discussion of Polygons}
+
+The following mathematical definition of a polygon, has been taken from \cite{coxeter1967geometry}:
+
+\enquote{A polygon may be defined as consisting of a number of points (called vertices) and an equal number of line segments (called sides), namely a cyclically ordered set of points in a plane, with no three successive points collinear, together with the line segments joining consecutive pairs of the points. In other words, a polygon is closed broken line lying in a plane}.
+
+Polygons can have several properties that simplify or complicate their treatment:
+
+\begin{description}
+\item[Simple] A simple polygon is not self intersecting and has a well-defined interior and exterior.\cite{weisstein_simple_p}
+\item[Convex] In the convex case any line can intersect the polygon only at two points. The interior all have to be smaller than 180°.\cite{weisstein_convex_p}
+\item[Concave] A concave polygon can be intersected more than twice by a given line. Therefore, at least one interior angle has to be larger than 180°.\cite{weisstein_concave_p}
+\item[Self-intersecting] A self intersecting polygon has at least one side which intersects with another side.
+\end{description}
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[y=0.80pt,x=0.80pt,yscale=0.55, xscale=0.55, inner sep=0pt, outer sep=0pt]
+  \path[draw=black,fill=black,line join=miter,line cap=butt,even odd rule,line
+    width=0.800pt] (95.0000,103.7908) -- (50.0000,264.5050) -- (270.7143,278.0765)
+    -- (268.5714,180.9336) -- (192.8571,113.7908) -- (95.0000,103.7908) -- cycle;
+  \path[draw=black,fill=black,line join=miter,line cap=butt,even odd rule,line
+    width=0.928pt] (377.5515,141.0290) -- (320.7928,240.1507) --
+    (440.0823,219.4707) -- (457.3986,308.6089) -- (564.1820,137.4635) --
+    (460.2846,160.2829) -- (391.9817,88.2592) -- (377.5515,141.0290) -- cycle;
+  \path[draw=black,fill=black,line join=miter,line cap=butt,even odd rule,line
+    width=0.631pt] (613.5194,155.6718) -- (619.2365,302.6427) --
+    (717.1421,93.0649) -- (786.4622,339.4964) -- (823.6234,159.6680) --
+    (613.5194,155.6718) -- cycle;
+\end{tikzpicture}
+\caption{Three different polygon types: (a) simple and convex, (b) simple and concave, (c) self-intersecting}
+\label{straight_skel}
+\end{figure}
+
 \subsection{Spiral Filling}
 
 The first method to cover the area of an arbitrary polygon is the spiral fill method using inset polygons that are created using the straight skeleton of the polygon.
 
 \subsubsection{Straight Skeleton}
 
-For the case of this thesis, the most interesting property of the straight skeleton is the ability to easily obtain inset polygons.
-The straight skeleton is defined as the topolgical skeleton of a polygon that is created by moving the edges inwards at a constant speed and observing the intersections of the vertices (first described by \citet{Aichholzer:jucs_1_12:a_novel_type_of}). 
-The straight skeleton is similar to the median axis of a polygon, but unlike the median axis it is not defined to have a constant distance to the polygon edges. An efficient implementation to compute the straight skeleton is discussed in \citet{huber2010computing}.
+For the case of this thesis, the most interesting property of the straight skeleton is the ability to easily obtain inset polygons with an arbitrary offset. The straight skeleton is defined as the topolgical skeleton of a polygon that is created by moving the edges parallel to themselves inwards at a constant speed and observing the intersections of the vertices (first described by Aichholzer et al. \citet{Aichholzer:jucs_1_12:a_novel_type_of}). 
+It is similar to the median axis of a polygon, but unlike the median axis it is not defined to have a constant distance to the polygon edges. 
+Another commonly used offset mechanism for polygons in motion planning is the Minkowski sum. However, there is no defined Minkowski subtraction, which makes the creation of inset polygons more complicated\footnote{It is possible to create an enclosing polygon, subtract the original polygon and offset the enclosing polygon with hole by taking the minkowski sum (which also offsets the \enquote{hole}).}. An efficient implementation to compute the straight skeleton is discussed in \citet{huber2010computing}.
 
-To create a spiral trajectory, two events that occur during the creation of the straight skeleton, have to be kept in mind: 
+To create a spiral trajectory, two events that occur during the creation of the straight skeleton, have to be kept in mind (visible in \autoref{straight_skel}): 
 
 \begin{itemize}
-\item Edge event: Depending on the length difference between the edges, one edge might be reduced to zero sooner than the others, resulting in an edge event. The neighboring edges are adjacent after the event. At this point, the inset polygon will be reduced by one vertex.
-\item Split event: A concave polygon will, at some point during the shrinking process, intersect itself. At the intersection point, a split event happens. After the split event, the number of inset polygons is increased by one.
+\item Edge event: depending on the length difference between the edges, one edge might be reduced to zero sooner than the others, resulting in an edge event. The neighboring edges are adjacent after the event. At this point, the inset polygon will be reduced by one vertex.
+\item Split event: a concave polygon will, at some point during the shrinking process, intersect itself. At the intersection point, a split event happens. After the split event, the number of inset polygons is increased by one.
 \end{itemize}
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[y=0.80pt,x=0.80pt,yscale=-1, inner sep=0pt, outer sep=0pt]
+  \path[draw=black,dash pattern=on 3.29pt,line join=miter,line cap=butt,miter
+    limit=10.00,line width=1pt] (203.1137,220.5582) --
+    (189.0787,206.5192)(203.1137,220.5582) --
+    (213.1929,206.5192)(225.0684,323.4860) --
+    (225.0684,242.8722)(219.3083,320.6079) --
+    (189.0787,363.7948)(219.3083,320.6079) --
+    (225.0684,323.4860)(219.3083,320.6079) --
+    (203.1137,220.5582)(326.5591,238.1899) --
+    (357.8705,255.1070)(326.5591,238.1899) --
+    (357.8705,206.5192)(253.1386,279.2212) --
+    (321.8807,279.2212)(257.0984,290.7375) --
+    (357.8705,303.3315)(257.0984,290.7375) --
+    (253.1386,279.2212)(257.0984,290.7375) --
+    (225.0684,323.4860)(271.8559,254.7477) --
+    (326.5591,238.1899)(271.8559,254.7477) --
+    (237.3032,206.5192)(271.8559,254.7477) -- (253.1386,279.2212);
+  \path[draw=black,line join=miter,line cap=butt,miter limit=10.00,line
+    width=1pt] (189.0787,206.5192) -- (189.0787,363.7948) --
+    (357.8705,303.3315) -- (321.8807,279.2212) -- (357.8705,255.1070) --
+    (357.8705,206.5192) -- (237.3032,206.5192) -- (225.0684,242.8722) --
+    (213.1929,206.5192) -- cycle;
+  \path[draw=black,line join=miter,line cap=butt,miter limit=10.00,line
+    width=1pt] (382.9398,207.8565) -- (382.9398,365.1321) --
+    (551.7316,304.6688) -- (515.7419,280.5585) -- (551.7316,256.4443) --
+    (551.7316,207.8565) -- (431.1683,207.8565) -- (418.9296,244.2055) --
+    (407.0541,207.8565) -- cycle;
+  \path[draw=black,line join=miter,line cap=butt,miter limit=10.00,line
+    width=1pt] (382.9398,207.8565);
+  \path[draw=black,line join=miter,line cap=butt,miter limit=10.00,line
+    width=1pt] (520.4203,239.5272) -- (453.8415,239.5272) --
+    (429.0088,314.3887) -- (481.5524,295.6714) -- (458.8792,280.1953) --
+    (520.0610,239.5272)(421.0891,322.3044) -- (492.3501,297.1124) --
+    (467.8766,280.1953) -- (524.7393,241.6867) -- (524.7393,235.2081) --
+    (450.6003,235.2081) -- (421.8077,321.9452)(417.4886,323.7454) --
+    (410.2914,305.0281) -- (410.2914,325.9050) --
+    (417.4886,323.7454)(444.4809,298.5534) -- (459.9570,293.1526) --
+    (448.4407,285.2369) -- (444.4809,298.5534)(461.3980,249.6063) --
+    (486.5900,249.6063) -- (453.4783,271.9203) --
+    (461.3980,249.2471)(396.9749,221.5323) -- (396.9749,344.9777) --
+    (520.4203,300.7129) -- (491.9908,280.5585) -- (537.6966,248.8839) --
+    (537.6966,221.8916) -- (441.2436,221.8916) -- (418.9296,285.5961) --
+    (396.9749,221.8916);
+  \path[draw=gray,dash pattern=on 3.29pt,line join=miter,line cap=butt,miter
+    limit=10.00,line width=1pt] (397.0360,221.6940) --
+    (383.0010,207.6550)(397.0360,221.6940) --
+    (407.1152,207.6550)(418.9907,324.6218) --
+    (418.9907,244.0080)(413.2306,321.7437) --
+    (383.0010,364.9306)(413.2306,321.7437) --
+    (418.9907,324.6218)(413.2306,321.7437) --
+    (397.0360,221.6940)(520.4814,239.3257) --
+    (551.7928,256.2428)(520.4814,239.3257) --
+    (551.7928,207.6550)(447.0609,280.3570) --
+    (515.8030,280.3570)(451.0207,291.8733) --
+    (551.7928,304.4674)(451.0207,291.8733) --
+    (447.0609,280.3570)(451.0207,291.8733) --
+    (418.9907,324.6218)(465.7782,255.8835) --
+    (520.4814,239.3257)(465.7782,255.8835) --
+    (431.2255,207.6550)(465.7782,255.8835) -- (447.0609,280.3570);
+
+\end{tikzpicture}
+\caption{Straight skeleton and generated inset polygons (right). Split and edge events are well visible. Figure modified from \cite{Aichholzer:jucs_1_12:a_novel_type_of}.}
+\end{figure}
+
 
 The inset polygons are used to create a spiral fill for the polygons. The procedure is as follows:
 
 \begin{itemize}
 \item[(0)] The straight skeleton is generated
-\item[(1)] The first inset polygon is created. The inset distance is the width of the rake divided by the number of vertices of the polygon.
-\item[(2)] If a split event has happened, then it is decided which polygon should be used to extend the current spiral (that is the one with the closer point to our current position). All the others are recursively filled in the same way. Additionally, a starting point to the spiral is passed, so that the beginning of the next spiral will be close to the current one. (The procedure restarts with the split polygon as input at (0)).
-\item[(3)] The $n+1$ vertex of the inset polygon is appended to the current spiral
-\item[(4)] An inset polygon is generated with inset length divided by number of vertices. Through dividing the inset length (which is predefined, usually as one rake width) by the number of vertices in the polygon, we make sure that one revolution of the spiral will travel only one rake distance.
+\item[(1)] The first inset polygon is created. The inset distance is the constant width of the rake divided by the number of vertices of the polygon. Through dividing the inset length by the number of vertices in the polygon, one revolution of the spiral will travel one rake distance inwards.
+\item[(2)] If a split event has happened, then it is decided which polygon should be used to extend the current spiral (that is the one with the closer point to the current position). All other newly created polygons are recursively filled by the same algorithm (starting at 0). %Additionally, a starting point to the spiral is passed, so that the beginning of the next spiral will be close to the current one. (The procedure restarts with each split polygon as input at (0)).
+\item[(3)] The closest point to the current point on the inset polygon is searched ($v_n$). The clockwise next vertex of the inset polygon ($v_{n+1}$) is appended to the current spiral
+\item[(4)] The next inset polygon is generated with inset length divided by the number of vertices of the previous inset polygon, and the process continues at (3).
 
 \end{itemize}
 
@@ -76,25 +177,27 @@ The inset polygons are used to create a spiral fill for the polygons. The proced
 \caption{Spiral Filling}\label{spiral_fill}
 
 \Function{createSpiralFill}{Polygon p, Point startPoint}
-
+\State $RakeWidth \gets \text{(const. rake width for BeachBot)}$
+\State $result \gets \text{empty list of points}$
 \State $ss \gets \text{getStraightSkeleton}(p)$
-\State $lOffset = RakeWidth/p.size()$
+\State $lOffset = RakeWidth/p.numVertices()$
 \If{$startPoint$} $currPoint \gets startPoint$ 
-\Else ~$ currPoint \gets p[0]$ 
+\Else ~$ currPoint \gets p.firstVertex$ 
 \EndIf
-\While{$insetPolys.size() \geq 1$}
-\If{$insetPolys.size() > 1$}
+\State $insetPolys \gets getOffsetPolygons(ss, lOffset)$`
+\While{$insetPolys.numPolys() \geq 1$}
+\If{$insetPolys.numPolys() > 1$}
 	\State $closestPoly = searchClosestPolygon(insetPolys, currPoint)$
 	\ForAll{$\lbrace poly \in insetPolys | poly \not\in closestPoly\rbrace$}
-		\State $createSpiralFill(poly)$
+		\State $createSpiralFill(poly, currPoint)$
 	\EndFor
 	\State $ss \gets getStraightSkeleton(closestPoly)$
 	\State $lOffset = RakeWidth/closestPoly.size()$
 	\State $insetPolys \gets getOffsetPolygons(ss, lOffset)$
 \EndIf
-\State $index \gets findClosestIndex(currPoint, insetPolys[0])$
-\State $currPoint \gets insetPolys[0].fromIndex(index + 1)$
-\State $result.append(currPoint)$
+\State $index \gets findClosestIndex(currPoint, insetPolys.firstPoly)$
+\State $currPoint \gets insetPolys.firstPoly.pointFromIndex(index + 1)$
+\State $result.appendToList(currPoint)$
 \State $insetPolys \gets getOffsetPolygons(ss, lOffset)$
 \EndWhile
 \EndFunction
@@ -103,7 +206,7 @@ The inset polygons are used to create a spiral fill for the polygons. The proced
 
 \end{algorithm}
 
-The algorithm is both displayed in pseudo code \ref{spiral_fill} and graphically in figure \ref{fig:insetting}. 
+The algorithm is both displayed in pseudo code \autoref{spiral_fill} and graphically in  \autoref{fig:insetting}. 
 
 \begin{figure}[htbp]
 	\centering
@@ -148,16 +251,16 @@ The algorithm is both displayed in pseudo code \ref{spiral_fill} and graphically
 
 This fill method is quite straightforward: The polygon is filled by a number of lines that are parallel to each other and clipped at the polygon edges. The direction of the lines can be freely chosen.
 
-To place the lines, a starting point is determined. If the chosen direction is inclined more than 45°, the leftmost vertex is used as starting point, or else if the inclination is smaller, the bottommost vertex is selected.
+To place the lines, a starting point is determined. If the chosen line direction is inclined more than 45°, the leftmost vertex is used as starting point, or else if the inclination is smaller, the bottommost vertex is selected.
 
 Starting from the start point, lines in the specified direction are placed and the polygon edges are tested for intersection. If two intersections for a given line are found, a line segment with those two points is added to the resulting trajectory. If no two intersections are found anymore, the algorithm stops.
 
-This method works very well for convex polygons, but has drawbacks for non-convex polygons, since a non convex polygon can have more than two intersections for any given line. Therefore it requires the polygon to be decomposed into convex parts. It was decided to use the optimal convex partitioning with the algorithm by Greene, described in \citet{greene1983decomposition}. The decomposed parts have vertices that coincide with the original vertices. Since it is an optimal convex partitioning algorithm, the number of created convex polygons is minimal (by what the size of each decomposed part is maximized). Having larger decomposed parts is positive for the trajectory, because fewer turns in general reduce the drawing time and make for a more consistent look.
+This method works very well for convex polygons, but has drawbacks for non-convex polygons, since a non convex polygon can have more than two intersections for any given line. Therefore it requires the polygon to be decomposed into convex parts. It was decided to use the optimal convex partitioning with the algorithm by Greene, described in \citet{greene1983decomposition}. The decomposed parts have vertices that coincide with the original vertices. Since it is an optimal convex partitioning algorithm, the number of created convex polygons is minimal (therefore the size of each decomposed part is maximized). Having larger decomposed parts is positive for the trajectory, because fewer turns in general reduce the drawing time and make for a more consistent look.
 
 \section{Path Generation}
-As already mentioned, to finally create a drawing all elements have to be connected by support trajectories that are not part of the drawing nad where the robot drives with the rake lifted. The supporting paths should have two properties: The total distance of all support paths should be as small as possible and the curvature of the connections should be limited.
+As already mentioned, to finally create a drawing all elements have to be connected by support trajectories that are not part of the drawing and where the robot drives with the rake lifted. The supporting paths should have two properties: The total distance of all support paths should be as small as possible and the curvature of the connections should be limited.
 
-As previously defined, a drawing consists of the three different types: Lines, polygons and filled polygons. Lines and polygons differ in the way they can be connected, as illustrated in \autoref{fig:connect}. A line has two connection points and therefore and is traversed from one end to the other. A polygon however can be entered at any vertex, but can only be exited at the same so that the polygon is closed. Filled polygons work the same as the regular polygon in that sense, since the spiral and the back and forth filling create a polyline that is inserted into the filled polygon.
+As previously defined, a drawing consists of the three different types: Lines, polygons and filled polygons. Lines and polygons differ in the way they can be connected, as illustrated in \autoref{fig:connect}. A line has two connection points and is traversed from one end to the other. A polygon however can be entered at any vertex, but can only be exited at the same vertex so that the polygon is closed. Filled polygons work the same as the regular polygon in that sense, since the spiral and the back and forth filling create a polyline that is inserted into the filled polygon.
 
 \begin{figure}
 \includegraphics[width=0.8\textwidth]{images/path_planning/traversal.pdf}
@@ -167,24 +270,27 @@ As previously defined, a drawing consists of the three different types: Lines, p
 \subsection{Traveling Salesman Problem}
 
 The task of connecting the drawing elements is similar to that of a Traveling Salesman Problem.
-The \textit{Traveling Salesman Problem} (TSP) is the problem of finding the minimum-weight Hamiltonian Circuit in a weighted graph. A weighted graph is a graph where every edge between two vertices has a certain weight. The Hamiltonian Circuit is defined as a tour through the graph, that travels to every vertex exactly once. It is called traveling salesman problem because in the historical context the vertices were cities, the weights euclidean distances and the salesman, seeking to minimize the distance traveled to do a roundtrip through all the cities in a given tour, would seek to obtain a solution for this problem. However, one of the properties of the traveling salesman problem is that it is that make this problem difficult to solve is that it is \textit{Non-deterministic Polynomial-time hard} (NP-hard) which means that, although is has not yet been proven, there is as of now no polynomial-time solution. If no heuristic is used, the amount of solutions that have to be searched in order to test all available possibilities is $n!$.
+The \textit{Traveling Salesman Problem} (TSP) is the problem of finding the minimum-weight Hamiltonian Circuit in a weighted graph. A weighted graph is a graph where every edge between two vertices has a certain weight. The Hamiltonian Circuit is defined as a tour through the graph, that travels to every vertex exactly once. It is called traveling salesman problem because in the historical context the vertices were cities, the weights Euclidean distances and the salesman, seeking to minimize the distance traveled to do a roundtrip through all the cities in a given tour, would seek to obtain a solution for this problem. However, one of the properties of the traveling salesman problem that make this problem difficult to solve is that it is \textit{Non-deterministic Polynomial-time hard} (NP-hard) which means that, although the non-existence has not yet been proven, there is as of now no polynomial-time solution. If no heuristic is used, the amount of solutions that have to be searched in order to test all available possibilities is $n!$.
 
-The weights of the problem are usually defined in a  $n \times n$ matrix.
+The weights of the problem are usually defined in a distance matrix  $M^{n \times n}$ matrix, where the elements are given by $d_{ij}$.
 
 The following properties for a general Traveling Salesman Problem are defined:
 
 \begin{description}
-\item[Symmetric] A TSP is symmetric if all distances between every node pair are symmetric (equal) in both directions from $A \leftrightarrows B$.
-\item[Metric] In a metric traveling salesman problem, all distances conform to the triangle inequality $c \leq a + b$ which is, for example, true if all distances are calculated using the euclidean distance formula between two points: $\overline{AB} = \sqrt{(x_1 -x_2)^2 + (y_1 - y_2)^2}$ but also for the so called Manhattan distance which is defined as $\overline{AB_M} = |x_1-x_2| + |y_1 - y_2|$.
-\item[Asymmetric] If the weights are different from $A \rightarrow B$ than from $B \rightarrow A$ then the TSP is assymetric. The triangle inequality is not guaranteed to be fullfilled anymore.
+\item[Symmetric] A TSP is symmetric if all distances between every node pair are symmetric (equal) in both directions ($d_{ij} = d_{ji} ~ \forall ~ i, j$).
+\item[Metric] In a metric TSP, all distances conform to the triangle inequality $d_{xy} \leq d_{xz} + d_{zy} $ which is, for example, true if the distances are calculated using the Euclidean distance formula between two points: $d_{ij} = \sqrt{(x_i -x_j)^2 + (y_i - y_j)^2}$ but also for the so called Manhattan distance which is defined as ${d_{ij}^M} = |x_i-x_j| + |y_i - y_j|$.
+\item[Asymmetric] If $d_{ij} \neq d_{ji}$ for at most one distance pair, then the TSP is asymmetric. The triangle inequality is not guaranteed to be fulfilled any more.
 \end{description}
 
 The easiest heuristic to the TSP is the nearest neighbour search. From a given startpoint the nearest, unvisited vertex is searched and connected. This is done until no more unvisited elements exist. Positive about the nearest neighbour approach is that the complexity is only growing linear to the search size. However, the obtained solutions are often of unsatisfying quality.
 
-Another standard heuristic is the branch and bound method. It works by splitting the set of possible solution into two sets and by calculating a upper and lower bound for both sets. If the upper bound of the first is lower than the lower bound of the second, the second is discarded. During the course of this thesis a variant of the depth-first branch and bound search was implemented. First, the graph was traversed until a tour was completed. Afterwards, another tour was recursively started. As soon as the traveled distance of the entire tour in the new branch gets higher than the current minimum tour, the branch is discarded. While this already reduces the search space, the effect becomes relatively small on larger problems (e.g. the first 6 out of 15 nodes might only seldomly span a tour where the distance is higher than the current minimum, and it gets only worse). The implementation has not been very mature, and it actually produces an optimal tour in the current implementation, which is not desired in a heuristic. With more level-wise bounds it could have been a lot more efficient. 
+Another standard heuristic is the branch and bound method. It works by splitting the set of possible solution into two sets and by calculating a upper and lower bound for both sets. If the upper bound of the first is lower than the lower bound of the second, the second is discarded. During the course of this thesis a variant of the depth-first branch and bound search was implemented. First, the graph is traversed until a tour is completed. Afterwards, another tour is recursively started. As soon as the traveled distance of the entire tour in the new branch gets higher than the current minimum tour, the branch is discarded. While this already reduces the search space, the effect becomes relatively small on larger problems (e.g. the first 6 out of 15 nodes might only seldomly span a tour where the distance is higher than the current minimum, and it gets only worse). The implementation has not been very mature, and it actually produces an optimal tour in the current implementation, which is not necessarily desired in a heuristic, that should sacrifice quality for speed. With more level-wise bounds it could have been further improved. 
 
-While the branch-and-bound implementation was not very mature and could have been optimized by a good margin, it became clear that, for a drawing of reasonable size, a state-of-the-art implementation had be found. Currently there are two well-known state of the art implementations for the TSP: Concorde\footnote{\url{http://www.math.uwaterloo.ca/tsp/concorde.html}} and the Improved Lin-Kernighan Heuristic of Helsgaun (LKH)\cite{helsgaun2000effective}\cite{kernighan1970efficient}. Contrary to the Concorde solver, the Improved LKH of Helsgaun can directly work with asymmetric distance matrices, which makes it an ideal candidate for the purpose of this thesis.
-The author, Keld Helsgaun, also demonstrates how the implementation is suited to solve the Equality Generalized\citep{helsgaun2013equality} as well as the clustered TSP\cite{helsgaun2014solving}. A combination of both cases is used in this thesis to find a tour through the drawing of high quality.
+While the branch-and-bound implementation was not very mature and could have been optimized by a good margin, it became clear that, for a drawing of reasonable size, a state-of-the-art implementation had to be found. Currently there are, among others, two well-known state of the art implementations for the TSP\footnote{according to \url{http://www.adaptivebox.net/CILib/code/tspcodes_link.html}}: Concorde\footnote{\url{http://www.math.uwaterloo.ca/tsp/concorde.html}} and the Improved Lin-Kernighan Heuristic of Helsgaun (LKH)\cite{helsgaun2000effective}\cite{kernighan1970efficient}. The Concorde solver is described by \cite{hornik2007tsp} as \enquote{one of the best exact TSP solvers currently available}. However, it only works with symmetric distance matrices. While it is possible to transform a general non-Euclidean asymmetric problem into a symmetric one, the resulting matrix is bigger (in the case of \cite{kumar1996asymmetric} the transformed distance matrix is of size $2n \times 2n$). Contrary to the Concorde solver, the Improved LKH of Helsgaun is able to directly work with asymmetric distance matrices, which makes it an ideal candidate for the purpose of this thesis. Furthermore, it is using a heuristic which is not guaranteed to obtain optimal solutions, but optimal solutions are arguably not needed for the case of a drawing.
+
+The author, Keld Helsgaun, also demonstrates how the implementation is suited to solve the equality Generalized\citep{helsgaun2013equality} as well as the clustered TSP\cite{helsgaun2014solving}. A combination of both cases is used in this thesis to find a high quality tour through the drawing of.
+
+The LKH solver uses the \textit{TSPLIB} interface to read and write the problems. The TSPLIB is a benchmark collection of various problems where some of them have known optimal solutions.
 
 %The final solution to the minimum connection problem was to use a state of the art TSP solver\cite{helsgaun2000effective}, which employs the Lin-Kernhighan-Heuristic\cite{kernighan1970efficient} (LKH) to approximately solve the Traveling Salesman Problem. It is, unlike many other TSP solver implementations that require the triangle inequality to hold, also well suited to solve assymetric problems.
 % general definition

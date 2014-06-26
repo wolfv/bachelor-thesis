@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   x="0"
+   y="0"
+   width="791.03998"
+   height="961.12347"
+   version="1.1"
+   id="svg4552"
+   inkscape:version="0.48+devel r"
+   sodipodi:docname="TSP_Verification_1.svg">
+  <metadata
+     id="metadata4592">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs4590" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2560"
+     inkscape:window-height="1378"
+     id="namedview4588"
+     showgrid="false"
+     inkscape:zoom="12.69815"
+     inkscape:cx="34.775365"
+     inkscape:cy="26.759365"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g4554"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <g
+     stroke-miterlimit="10"
+     font-weight="normal"
+     font-size="12"
+     mix-blend-mode="normal"
+     id="g4554"
+     style="font-weight:normal;font-size:12px;font-family:sans-serif;text-anchor:start;fill:none;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0"
+     transform="translate(28.582874,-20)">
+    <line
+       x1="20"
+       y1="20"
+       x2="20"
+       y2="885.71429"
+       id="line4556"
+       style="stroke:#000000" />
+    <path
+       d="M 20,885.71429 C 20,886.21429 20,886.21429 20,886.21429 C 20,894.48306 19.70019,902.74817 19.21374,911.00262 C 18.72729,919.25707 18.21323,927.64087 20,935.71429 C 21.98764,944.6953 26.93249,952.95021 33.70798,959.17131 C 40.48347,965.3924 49.03993,969.59036 58.04861,971.44857 C 67.05729,973.30678 76.4963,972.85359 85.3734,970.44392 C 94.25049,968.03425 102.56552,963.69299 109.81708,958.034 C 124.3202,946.71602 134.34395,930.34655 140.22773,912.91617 C 146.11151,895.48578 148.08477,876.96173 148.5715,858.57151 C 149.00807,842.07673 148.5715,825.57206 148.5715,809.07151 C 148.5715,808.57151 148.5715,808.57151 148.5715,808.57151"
+       id="path4558"
+       style="opacity:0.2;stroke:#ff0000"
+       inkscape:connector-curvature="0" />
+    <g
+       id="g4560"
+       style="stroke:#ff0000">
+      <line
+         x1="20"
+         y1="885.71429"
+         x2="148.5715"
+         y2="808.57147"
+         id="line4562" />
+      <polyline
+         points="147.86762,818.54669 148.5715,808.57149 139.43862,804.49834"
+         id="polyline4564" />
+    </g>
+    <line
+       x1="148.5715"
+       y1="808.57147"
+       x2="148.5715"
+       y2="105.71428"
+       id="line4566"
+       style="stroke:#000000" />
+    <path
+       d="M 148.5715,105.71428 C 148.5715,105.21428 148.5715,105.21428 148.5715,105.21428 C 148.5715,96.94034 148.23287,88.67109 147.68365,80.4154 C 147.13444,72.15971 146.55709,63.73926 148.5715,55.71428 C 150.55415,47.81582 155.13235,40.63297 161.2775,35.28942 C 167.42266,29.94586 175.0912,26.43058 183.10572,24.98697 C 191.12024,23.54336 199.46234,24.14575 207.2711,26.45656 C 215.07986,28.76737 222.35593,32.76473 228.67761,37.89824 C 241.32097,48.16526 249.95507,62.77912 254.99926,78.26532 C 260.04345,93.75152 261.69654,110.14769 262.14287,126.42857 C 262.59506,142.92297 262.14287,159.42798 262.14287,175.92857 C 262.14287,176.42857 262.14287,176.42857 262.14287,176.42857"
+       id="path4568"
+       style="opacity:0.2;stroke:#ff0000"
+       inkscape:connector-curvature="0" />
+    <g
+       id="g4570"
+       style="stroke:#ff0000">
+      <line
+         x1="148.5715"
+         y1="105.71428"
+         x2="262.14288"
+         y2="176.42857"
+         id="line4572" />
+      <polyline
+         points="252.94411,180.35064 262.14288,176.42857 261.60351,166.44312"
+         id="polyline4574" />
+    </g>
+    <line
+       x1="262.14288"
+       y1="176.42857"
+       x2="262.14288"
+       y2="759.28583"
+       id="line4576"
+       style="stroke:#000000" />
+    <path
+       d="M 262.14288,759.28583 C 262.14288,759.78583 262.14288,759.78583 262.14288,759.78583 C 262.14288,768.0518 262.41938,776.31465 262.8681,784.56844 C 263.31682,792.82223 263.79237,801.18611 262.14288,809.28583 C 260.50262,817.34024 256.694,824.90482 251.43265,831.22005 C 246.1713,837.53528 239.48178,842.61198 232.11609,846.26033 C 217.3847,853.55704 200.24982,855.04027 183.97216,852.73949 C 151.41684,848.13794 122.86199,829.50964 92.73376,816.3448 C 77.66965,809.76238 61.84684,804.45396 45.46424,803.08794 C 29.08163,801.72192 12.01768,804.53062 -1.95189,813.19705 C -8.93667,817.53026 -15.06955,823.29115 -19.57528,830.16592 C -24.081,837.04069 -26.93098,845.03666 -27.48436,853.23774 C -28.03774,861.43882 -26.25579,869.82648 -22.15135,876.94811 C -18.04692,884.06974 -11.59756,889.86798 -3.96518,892.91934 C 3.72151,895.99241 12.18872,896.32763 20.45992,896.66853 C 28.73112,897.00943 36.99237,897.57917 45.21753,898.51497 C 45.71433,898.57149 45.71433,898.57149 45.71433,898.57149"
+       id="path4578"
+       style="opacity:0.13800001;stroke:#ff0000"
+       inkscape:connector-curvature="0" />
+    <g
+       id="g4580"
+       style="stroke:#ff0000">
+      <line
+         x1="262.14288"
+         y1="759.28583"
+         x2="45.714321"
+         y2="898.57147"
+         id="line4582" />
+      <polyline
+         points="46.1045,888.57909 45.71432,898.57148 54.97065,902.35572"
+         id="polyline4584" />
+    </g>
+    <polyline
+       points="45.71432,898.57148 761.4287,980 748.57151,465.7143"
+       id="polyline4586"
+       style="stroke:#000000" />
+    <circle
+       style="opacity:1;fill:#00ff00;fill-opacity:1;stroke:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:1, 2;stroke-dashoffset:0"
+       id="path5134"
+       cx="19.613123"
+       cy="5.2332902"
+       r="7.8751626"
+       d="M 27.488286,5.2332902 A 7.8751626,7.8751626 0 0 1 19.613123,13.108453 A 7.8751626,7.8751626 0 0 1 11.73796,5.2332902 A 7.8751626,7.8751626 0 0 1 19.613123,-2.6418724 A 7.8751626,7.8751626 0 0 1 27.488286,5.2332902 Z" />
+  </g>
+</svg>

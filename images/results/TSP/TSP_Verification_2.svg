@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   x="0"
+   y="0"
+   width="943.99841"
+   height="986.7348"
+   version="1.1"
+   id="svg5155"
+   inkscape:version="0.48+devel r"
+   sodipodi:docname="TSP_Verification_2.svg">
+  <metadata
+     id="metadata5185">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs5183" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2560"
+     inkscape:window-height="1378"
+     id="namedview5181"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="0.35355339"
+     inkscape:cx="1098.4859"
+     inkscape:cy="-196.89601"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g5157" />
+  <g
+     stroke-miterlimit="10"
+     font-weight="normal"
+     font-size="12"
+     mix-blend-mode="normal"
+     id="g5157"
+     style="font-weight:normal;font-size:12px;font-family:sans-serif;text-anchor:start;fill:none;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-dashoffset:0"
+     transform="translate(-8.949748,6.098665)">
+    <line
+       x1="20"
+       y1="20"
+       x2="45.76902"
+       y2="529.18304"
+       id="line5159"
+       style="stroke:#000000" />
+    <path
+       d="M 45.76902,529.18306 C 45.79429,529.68242 45.79429,529.68242 45.79429,529.68242 C 46.21177,537.93154 46.41424,546.18966 46.4824,554.44906 C 46.55056,562.70846 46.59888,571.03575 48.29621,579.11916 C 52.23344,597.86995 65.44702,614.04516 82.17468,623.38752 C 98.90234,632.72988 118.81418,635.5686 137.83649,633.27828 C 156.85881,630.98796 175.05273,623.79041 191.64474,614.20922 C 208.23675,604.62803 223.34064,592.68691 237.96734,580.31138 C 267.22074,555.56032 295.67414,528.35346 331.21203,514.02048 C 348.98098,506.85399 368.39418,503.1416 387.42943,505.32183 C 406.46468,507.50206 425.07192,515.88262 437.90655,530.10817 C 448.96918,542.36968 456.50437,557.35094 465.81548,570.99021 C 466.09739,571.40316 466.09739,571.40316 466.09739,571.40316"
+       id="path5161"
+       style="opacity:0.2;stroke:#ff0000"
+       inkscape:connector-curvature="0" />
+    <g
+       id="g5163"
+       style="stroke:#ff0000">
+      <line
+         x1="45.76902"
+         y1="529.18304"
+         x2="466.09741"
+         y2="571.40314"
+         id="line5165" />
+      <polyline
+         points="459.57167,578.98041 466.0974,571.40315 461.20903,562.67939"
+         id="polyline5167" />
+    </g>
+    <polygon
+       points="562.88897,713.18705 447.23574,932.3196 203.92538,935.39846 111.49489,604.57366 466.0974,571.40315 "
+       id="polygon5169"
+       style="stroke:#000000" />
+    <path
+       d="M 466.0974,571.40315 C 466.59523,571.35658 466.59523,571.35658 466.59523,571.35658 C 483.02421,569.81977 499.41271,567.79467 515.88007,566.74634 C 538.76819,565.28925 561.99629,566.38933 584.15299,572.3113 C 606.30969,578.23328 627.40859,589.16458 643.46661,605.53923 C 655.02353,617.32404 664.4546,630.99736 674.9542,643.73323 C 675.27226,644.11903 675.27226,644.11903 675.27226,644.11903"
+       id="path5171"
+       style="opacity:0.2;stroke:#ff0000"
+       inkscape:connector-curvature="0" />
+    <g
+       id="g5173"
+       style="stroke:#ff0000">
+      <line
+         x1="466.09741"
+         y1="571.40314"
+         x2="675.27228"
+         y2="644.11902"
+         id="line5175" />
+      <polyline
+         points="667.16477,649.97298 675.27225,644.11903 672.54426,634.49832"
+         id="polyline5177" />
+    </g>
+    <line
+       x1="675.27228"
+       y1="644.11902"
+       x2="952.17657"
+       y2="980"
+       id="line5179"
+       style="stroke:#000000" />
+    <circle
+       style="opacity:1;fill:#00ff00;fill-opacity:1;stroke:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:1, 2;stroke-dashoffset:0"
+       id="path5727"
+       cx="18.353554"
+       cy="3.3051407"
+       r="9.4038057"
+       d="M 27.75736,3.3051407 A 9.4038057,9.4038057 0 0 1 18.353554,12.708946 A 9.4038057,9.4038057 0 0 1 8.949748,3.3051407 A 9.4038057,9.4038057 0 0 1 18.353554,-6.098665 A 9.4038057,9.4038057 0 0 1 27.75736,3.3051407 Z" />
+  </g>
+</svg>
