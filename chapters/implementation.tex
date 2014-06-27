@@ -28,7 +28,7 @@ It was enhanced by an attribute parser and some smaller changes to the inner wor
 
 A wrapper script was created that exports two functions to the main path generator and passes the parsed objects.	
 
-\section{Element Polymorphism}
+\section{Element Polymorphism}\label{sec:elem}
 
 An element container class exists from which three different classes are derived (corresponding to the three defined image elements). The classes are \texttt{PolyLineElementPtr}, \texttt{PolygonElementPtr} and \texttt{FilledPolygonElementPtr}.
 
@@ -53,25 +53,21 @@ function with \texttt{idx = -1;}.
 
 \item[\vv{int}{getType();}] returns element type (can be one of \texttt{EL\_POLYLINE}, \texttt{EL\_POLYGON}, \texttt{EL\_FILLED\_POLYGON}, which are defined in a enumeration).
 
-
-
 \end{description}
 
 They derive a number of virtual and pure virtual functions from the base class
 
-	\section{Tree Container}
+\section{Tree Container}
 
 All elements are sorted into a tree structure. The tree strucure was initially chosen to keep track of all containment 
 
 \section{Preprocessing}
 
-In the preprocessing phase of the program, the bounding box of all elements is calculated and they are scaled and translated to the field. An optional margin can be set to the field.
+In the preprocessing phase of the program, the bounding box of all elements is calculated and they are scaled and translated to the field. An optional margin can be set to the field to mitigate the risk of connection lines going outside the canvas and thereby loosing localization or driving into the spectators.
 
 \section{Implementation of the Algorithms}
 
-All core geometric algorithms have been provided by the \textit{Computer Geometric Algorithms Library}\cite{cgal:eb-00a} (CGAL).
-
-CGAL operates with Kernels, which implement the common types: Point\_2, Line\_2, Segment\_2, Vector\_2 Polygon\_2 and some more. Since exact constructions are not necessary for our goals, the \texttt{CGAL::Exact\_predicates\_inexact\_constructions\_kernel} is used throughout the application, which stores all coordinates as double float values (and is thus limiting the exactness of constructions). The functions that are used the most in this implementation are \texttt{CGAL::intersect}, \texttt{transform} and \texttt{CGAL::squared\_distance}. Vector algebra is also simple thanks to operator overloading.
+All core geometric algorithms have been provided by the \textit{Computer Geometric Algorithms Library} (CGAL)\cite{cgal:eb-00a}. CGAL operates with Kernels, which implement the common types, such as Point\_2, Line\_2, Segment\_2, Vector\_2, Polygon\_2. Since exact constructions are not necessary for our goals, the \texttt{CGAL::Exact\_predicates\_inexact\_constructions\_kernel} is used throughout the application, which stores all coordinates as double-precision floating-point values (and is thereby limiting the exactness of constructions). The functions that are used the most in this implementation are \texttt{CGAL::intersect}, \texttt{CGAL::transform} and \texttt{CGAL::squared\_distance}. Vector algebra is also simple thanks to operator overloading.
 
 CGAL contains algorithms for the straight skeleton methods\cite{cgal:c-sspo2-14a} as well as for the convex decomposition\cite{cgal:h-pp2-00a}.
 
@@ -79,21 +75,19 @@ CGAL contains algorithms for the straight skeleton methods\cite{cgal:c-sspo2-14a
 
 After the complete trajectory for the drawing process was evaluated and, eventually modified, in the graphical user interface, the post processing step does two different things.
 
-First, the edges of the trajectory are rounded. The fill elements are receiving an inner rounding, whereas the outer elements (polygon boundaries) are rounded by analysing a threshold angle. If the angle is too sharp, the trajectory will create an outer loop so that the edges will stay sharp (illustrated in \autoref{fig:rounding}. Otherwise, the rounding is also on the inner side.
-x
-In the last step, all connecting curves are discretized to polylines and the complete trajectory is equally spaced with points and corresponding rake states, so that it can easily be handled by the \textit{Path Converter} (another bachelor thesis) or directly be passed to the point following controller of the BeachBot, .
+First, the edges of the trajectory are rounded. The fill elements are receiving an inner rounding, whereas the outer elements (polygon boundaries) are rounded by analysing a threshold angle. If the angle is too sharp, the trajectory will create an outer loop so that the edges will stay sharp (illustrated in \autoref{fig:rounding}. Otherwise, the rounding is also on the inner side. In the last step, all connecting curves are discretized to polylines and the complete trajectory is equally spaced with points and corresponding rake states, so that it can easily be handled by the \textit{Path Converter} (another bachelor thesis) or directly be passed to the point following controller of the BeachBot, .
 
 \section{User Interface}
 
-The graphical user interface (GUI) was implemented in \textit{Javascript}, or, more specifically in \textit{CoffeeScript}, which is a strict superset of Javascript. The \textit{paper.js} library was used for drawing and provides most of the abstractions used throughout the program. A python server is used as slim host of the main application. The application provides means to parse and send JSON serializations of the complete vector element tree, which are parsed in Javascript user interface. All data is sent and retrieved using asynchronous \texttt{GET} and \texttt{POST} requests (commonly referred to as \textit{AJAX}). This implemetation was chosen to allow for great flexibilty in terms of devices accessing the server. A seperate bachelor thesis was working on a Android tablet based touch interface to control the BeachBot. Since Android tablets are perfectly capable of including a \textit{WebView} component which could easily serve the \textit{HTML} and Javascript files developed in this bachelor thesis, integration of those two tools should be easy. The main program also compiles on the internal computer of the BeachBot, where the server could possibly run, allowing for a fully integrated system. As mentioned in the section about the \texttt{ElementPtr}, all elements have a unique identifier number which makes it easy to select them programmatically and what is used by several of the GUIs methods.
+The graphical user interface (GUI) was implemented in \textit{JavaScript}, or, more specifically in \textit{CoffeeScript}, which compiles to regular JavaScript. The \textit{paper.js}\footnote{\url{http://paperjs.org/}} library was used for drawing and provides most of the abstractions used throughout the program. A \textit{Python} server is used as slim host of the main application. The application provides means to parse and send JSON serializations of the complete vector element tree, which are parsed in the JavaScript user interface. All data is sent and retrieved using asynchronous \texttt{GET} and \texttt{POST} requests (commonly referred to as \textit{AJAX}). This implementation was chosen to allow for great flexibility in terms of devices accessing the server. A separate bachelor thesis was working on a Android tablet based touch interface to control the BeachBot. Since Android tablets are perfectly capable of including a \textit{WebView} component which could easily serve the \textit{HTML} and JavaScript files developed in this bachelor thesis, integration of those two tools would be relatively easy. The main program also compiles on the internal computer of the BeachBot, where the server could possibly run, allowing for a fully integrated system. As mentioned in \autoref{sec:elem}, all elements have a unique identifier which makes it easy to select them in the element container and what is used by several of the user interface methods.
 
 Three different view modes and four tools have been implemented which have proven to be helpful in the design of useful trajectories for the BeachBot.
 
-\subsection{Views} The \textit{Outline} view is the standard view, where all paths of the image are displayed with a stroke width of 2 pixels. A \textit{Realistic} view tries to approximate the real rake size of the generated trajectory by using a stroke width that corresponds to the real world dimensions. Empirical data shows that the conversion does work quite well. The connections can also be displayed differently. If \textit{Show Connections} is selected, all connecting trajectories are rendered in blue color on the screen. Selecting \textit{Simple Connection}, the connections are rendered as directed arrows, which is useful for changing and analyzing the TSP solution. \textit{No Connections} hides all the connecting trajectories. All view code was implemented clientside (in Javascript).
+\subsection{Views} The \textit{Outline} view is the standard view, where all paths of the image are displayed with a stroke width of 2 pixels. The \textit{Realistic} view tries to approximate the real rake size of the generated trajectory by using a stroke width that corresponds to the real world dimensions. Empirical data shows that the conversion does work quite well. The connections can also be displayed differently. If \textit{Show Connections} is selected, all connecting trajectories are rendered in blue color on the screen. Selecting \textit{Simple Connection}, the connections are rendered as directed arrows, which is useful for changing and analyzing the TSP solution. \textit{No Connections} hides all the connecting trajectories. All view code was implemented client-side (in JavaScript).
 
 \subsection{Tools}
 
-Paper.js offers a useful tool abstraction, which makes the creation of various tools very flexible. 4 different tools have been implemented:
+Paper.js offers a useful tool abstraction layer, which makes the creation of various tools very flexible. Four different tools have been implemented so far:
 
 \begin{description}
 \item[Change Connection Tool] As mentioned, the \texttt{ElementPtr} can store enforced connections between elements. Selecting the first or last node of a polyline or any node of a polygon element, and subsequently the same on another element adds an enforced connection between those elements at the desired nodes, and also deletes any previous enforced connection between the node and any other element.

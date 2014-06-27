@@ -246,8 +246,9 @@ The algorithm is both displayed in pseudo code \autoref{spiral_fill} and graphic
 \caption{Generated spiral} \label{fig:gen_spiral}
 \end{figure}
 
-\subsection{Back and Forth Filling}
-\todo{change name?}
+\clearpage
+
+\subsection{Zig Zag Filling}
 
 This fill method is quite straightforward: The polygon is filled by a number of lines that are parallel to each other and clipped at the polygon edges. The direction of the lines can be freely chosen.
 
@@ -255,12 +256,35 @@ To place the lines, a starting point is determined. If the chosen line direction
 
 Starting from the start point, lines in the specified direction are placed and the polygon edges are tested for intersection. If two intersections for a given line are found, a line segment with those two points is added to the resulting trajectory. If no two intersections are found anymore, the algorithm stops.
 
-This method works very well for convex polygons, but has drawbacks for non-convex polygons, since a non convex polygon can have more than two intersections for any given line. Therefore it requires the polygon to be decomposed into convex parts. It was decided to use the optimal convex partitioning with the algorithm by Greene, described in \citet{greene1983decomposition}. The decomposed parts have vertices that coincide with the original vertices. Since it is an optimal convex partitioning algorithm, the number of created convex polygons is minimal (therefore the size of each decomposed part is maximized). Having larger decomposed parts is positive for the trajectory, because fewer turns in general reduce the drawing time and make for a more consistent look.
+This method works very well for convex polygons, but has drawbacks for non-convex polygons, since a non convex polygon can have more than two intersections for any given line. Therefore it requires the polygon to be decomposed into convex parts. It was decided to use the optimal convex partitioning with the algorithm by Greene, described in \cite{greene1983decomposition}. The decomposed parts have vertices that coincide with the original vertices. Since it is an optimal convex partitioning algorithm, the number of created convex polygons is minimal (therefore the size of each decomposed part is maximized). Having larger decomposed parts is positive for the trajectory, because fewer turns in general reduce the drawing time and make for a more consistent look.
+
+Additionally, the created segments (or the convex polygon) are offseted by a certain margin inwards to make way for the turns and reduce the amount of drawing that extends to the outside. As last step, each segment is driven with the rake lowered and the complete polygon is also traversed.
+
+Because the zig zag filling can be thought of as one continuous line all generated lines are already connected with an \textit{enforced connection} (which is explained later) to also reduce the amount of free connection points that the Traveling Salesman algorithm has to examine.
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.6\textwidth}
+\includegraphics[width=\textwidth]{images/path_planning/zigzag_1.pdf}
+\end{subfigure}
+\par\bigskip
+\begin{subfigure}[b]{0.9\textwidth}
+\includegraphics[width=\textwidth]{images/path_planning/zigzag_2.pdf}
+\end{subfigure}
+\caption{Zig Zag filling of two shapes. The first shape is convex, the second concave. The second shape is partitioned into convex elements using the optimal convex partitioning, which are separately filled with the Zig Zag fill.}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.8\textwidth}
+\includegraphics[width=\textwidth]{images/path_planning/zigzag_user_segment_and_fill.pdf}
+\end{subfigure}
+\caption{The user can choose an arbitrary segmentation and zig zag direction in the user interface}
+\end{figure}
 
 \section{Path Generation}
 As already mentioned, to finally create a drawing all elements have to be connected by support trajectories that are not part of the drawing and where the robot drives with the rake lifted. The supporting paths should have two properties: The total distance of all support paths should be as small as possible and the curvature of the connections should be limited.
 
-As previously defined, a drawing consists of the three different types: Lines, polygons and filled polygons. Lines and polygons differ in the way they can be connected, as illustrated in \autoref{fig:connect}. A line has two connection points and is traversed from one end to the other. A polygon however can be entered at any vertex, but can only be exited at the same vertex so that the polygon is closed. Filled polygons work the same as the regular polygon in that sense, since the spiral and the back and forth filling create a polyline that is inserted into the filled polygon.
+As previously defined, a drawing consists of the three different types: Lines, polygons and filled polygons. Lines and polygons differ in the way they can be connected, as illustrated in \autoref{fig:connect}. A line has two connection points and is traversed from one end to the other. A polygon however can be entered at any vertex, but can only be exited at the same vertex so that the polygon is closed. Filled polygons work the same as the regular polygon in that sense, since the spiral and the zig zag filling create a polyline that is inserted into the filled polygon.
 
 \begin{figure}
 \includegraphics[width=0.8\textwidth]{images/path_planning/traversal.pdf}
@@ -286,18 +310,22 @@ The easiest heuristic to the TSP is the nearest neighbour search. From a given s
 
 Another standard heuristic is the branch and bound method. It works by splitting the set of possible solution into two sets and by calculating a upper and lower bound for both sets. If the upper bound of the first is lower than the lower bound of the second, the second is discarded. During the course of this thesis a variant of the depth-first branch and bound search was implemented. First, the graph is traversed until a tour is completed. Afterwards, another tour is recursively started. As soon as the traveled distance of the entire tour in the new branch gets higher than the current minimum tour, the branch is discarded. While this already reduces the search space, the effect becomes relatively small on larger problems (e.g. the first 6 out of 15 nodes might only seldomly span a tour where the distance is higher than the current minimum, and it gets only worse). The implementation has not been very mature, and it actually produces an optimal tour in the current implementation, which is not necessarily desired in a heuristic, that should sacrifice quality for speed. With more level-wise bounds it could have been further improved. 
 
-While the branch-and-bound implementation was not very mature and could have been optimized by a good margin, it became clear that, for a drawing of reasonable size, a state-of-the-art implementation had to be found. Currently there are, among others, two well-known state of the art implementations for the TSP\footnote{according to \url{http://www.adaptivebox.net/CILib/code/tspcodes_link.html}}: Concorde\footnote{\url{http://www.math.uwaterloo.ca/tsp/concorde.html}} and the Improved Lin-Kernighan Heuristic of Helsgaun (LKH)\cite{helsgaun2000effective}\cite{kernighan1970efficient}. The Concorde solver is described by \cite{hornik2007tsp} as \enquote{one of the best exact TSP solvers currently available}. However, it only works with symmetric distance matrices. While it is possible to transform a general non-Euclidean asymmetric problem into a symmetric one, the resulting matrix is bigger (in the case of \cite{kumar1996asymmetric} the transformed distance matrix is of size $2n \times 2n$). Contrary to the Concorde solver, the Improved LKH of Helsgaun is able to directly work with asymmetric distance matrices, which makes it an ideal candidate for the purpose of this thesis. Furthermore, it is using a heuristic which is not guaranteed to obtain optimal solutions, but optimal solutions are arguably not needed for the case of a drawing.
+While the branch-and-bound implementation was not very mature and could have been optimized by a good margin, it became clear that, for a drawing of reasonable size, a state-of-the-art implementation had to be found. Currently there are, among others, two well-known state of the art implementations for the TSP\footnote{according to \url{http://www.adaptivebox.net/CILib/code/tspcodes_link.html}}: Concorde\footnote{\url{http://www.math.uwaterloo.ca/tsp/concorde.html}} and the Improved Lin-Kernighan Heuristic of Helsgaun (LKH)\cite{helsgaun2000effective}\cite{kernighan1970efficient}. The Concorde solver is described by \cite{hornik2007tsp} as \enquote{one of the best exact TSP solvers currently available}. However, it only works with symmetric distance matrices. While it is possible to transform a general non-Euclidean asymmetric problem into a symmetric one, the resulting matrix is bigger (in the case of \cite{kumar1996asymmetric} the transformed distance matrix is of size $2n \times 2n$). Contrary to the Concorde solver, the Improved LKH of Helsgaun is able to directly work with asymmetric distance matrices, which makes it an ideal candidate for the purpose of this thesis. Furthermore, it is using a heuristic which is not guaranteed to obtain optimal solutions, but optimal solutions are arguably not needed for the case of a sand drawing.
 
-The author, Keld Helsgaun, also demonstrates how the implementation is suited to solve the equality Generalized\citep{helsgaun2013equality} as well as the clustered TSP\cite{helsgaun2014solving}. A combination of both cases is used in this thesis to find a high quality tour through the drawing of.
+The Lin-Kernighan heuristic is a local search optimization algorithm that works by using 2-opt and 3-opt moves. For a 2-opt move, 2 connections between 4 vertices are \enquote{cutted} and the only other  possible connection is checked (there is only one other possible connection because otherwise two closed tours would result). If the resulting tour is shorter, it is picked as new basis tour. Repeating this step generates a more optimal solution each time.
 
-The LKH solver uses the \textit{TSPLIB} interface to read and write the problems. The TSPLIB is a benchmark collection of various problems where some of them have known optimal solutions.
+An extension of the 2-opt move is the 3-opt move, where connections between 6 vertices (3 connections) are removed and all new connection possibilities are evaluated. The Lin-Kernighan algorithm extends this even further and works with $\lambda\text{-opt}$ moves. This generally degrades the run time to $\mathcal{O}(n^\lambda)$. Therefore the Lin-Kernhighan algorithm uses variable $\lambda\text{-opt}$ moves: starting at $\lambda=2$ at each step is evaluated if $\lambda$ should be increased by adding one or not through applying a series of tests. At a stopping condition this process ends.
+
+The author, Keld Helsgaun, also demonstrates how the specific LKH implementation is suited to solve the equality generalized\citep{helsgaun2013equality} as well as the clustered TSP\cite{helsgaun2014solving}. A combination of both cases is used in this thesis to find a high quality tour through the drawing of.
+
+The LKH solver uses the \textit{TSPLIB}\footnote{\url{http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/}} file format as interface to read and write the problems. The TSPLIB is a benchmark collection of various traveling salesman problems, where some of them have known optimal solutions.
 
 %The final solution to the minimum connection problem was to use a state of the art TSP solver\cite{helsgaun2000effective}, which employs the Lin-Kernhighan-Heuristic\cite{kernighan1970efficient} (LKH) to approximately solve the Traveling Salesman Problem. It is, unlike many other TSP solver implementations that require the triangle inequality to hold, also well suited to solve assymetric problems.
 % general definition
 % all three methods we tried, including LKH
 \subsection{Adaptation of Traveling Salesman Problem for the Algorithm}
 
-To find a suited tour with the generic LKH solver, the correct weights for the graph have to be specified. This happens in logical steps:
+To find a suited tour with the generic LKH solver, the correct weights for the distance matrix have to be specified. This happens in the following steps:
 
 \begin{itemize}
 \item On polylines, all vertices that are not the first or last node are removed, since they can never be accessed without entering at either the first or last node 
@@ -310,9 +338,97 @@ A regular TSP tour is closed. This implies that a regular tour has a tendency to
 
 The ingoing weights for the startpoint are chosen to be equal for all nodes. Thus, the TSP will never optimize towards traveling back to the start point.
 
+As example, the matrix of a a simple drawing is shown in \autoref{simple_tsp_fig}.
+
+\paragraph{Reprojecting the Tour} The output of the LKH algorithm is a text file with ordered \textit{tour indices} (shown in \autoref{tour_output_eq}. The text file is read back in the main program and evaluated. Since the LKH algorihtm is not aware of the structure of the problem at hand, the indices have to be \enquote{projected} to the drawing elments. The tour indices correspond to the matrix indices and the ordering is that of the shortest found tour through the elements, vertex by vertex.
+To connect all elements in the way the tour was found, first the tour starting point is searched among the tour indices (the tour starting point index is always \enquote{1}).
+
+All other indices have to be saved beforehand and need to be reapplied now: The tour index corresponds to a vertex on a given element. The elements are now connected in the order they appear in the found tour. For the connection only the first tour index on each element is relevant, because the exit point of the element is trivially known for each type of element when the entry point is given.
+ 
+\paragraph{Enforcing Connections} If the found solution is not sufficient or satisfying, the user might want to alter the tour. This works through the enforcement of connections between two connection points on the elements. If two elements have an enforced connection, they can be represented by a single line with entry and exit point and an unknown traversal direction. This is due to the fact that if one point on an element is connected, there is a trivially known other point that is the last \enquote{available} point. E.g. if a polygon has an enforced connection at vertex $v_i$, it is known that $v_i$ will also be either start- or endpoint for the connected elements because the polygon loop has to be closed. Similarly, if the first or last point of a polyline has an enforced connection the other is the remaining free point that can still be used to connect to other elements. Thus, instead of the single elements, the start and endpoint of said \enquote{imaginary} polyline is added to the distance matrix and the tour is completed during the post processing. An element with two enforced connections is completely ignored in the distance matrix, since it has no free connection points.
+
+\paragraph{Containment Properties}
+
+A polygon can enclose a set of lines, for example. Generally, to avoid the crossing of too many lines, it is undesired to enter this enclosing polygon twice. Therefore the weights of the polygon vertices towards the inner set of lines is set to $\infty$. Thus the tour will always start on the inside and travel further outside.
+
+\begin{figure}
+\centering
+\begin{subfigure}[b]{0.45\textwidth}
+\centering
+\includegraphics[height=6cm]{images/path_planning/tsp_polyline.pdf}
+\caption{A polyline. The red squares (inner vertices) will be removed in the distance matrix as they cannot be reached from the \enquote{outside}.}
+\end{subfigure}
+~
+\begin{subfigure}[b]{0.45\textwidth}
+\includegraphics[width=1\textwidth]{images/path_planning/tsp_polygon.pdf}
+\caption{A polygon with the traversal direction on the polygon itself: Only the clockwise direction is \enquote{allowed} (arbitrarily chosen).}
+\end{subfigure}
+
+\par\bigskip
+
+\begin{subfigure}[t]{0.45\textwidth}
+\includegraphics[width=1\textwidth]{images/path_planning/tsp_polygon_2.pdf}
+\caption{Entering the polygon at node (i) it is known that the exit vertex must be (v), because no vertex is visited twice and all intermediate edges have a weight of zero.}
+\end{subfigure}
+~
+\begin{subfigure}[t]{0.45\textwidth}
+\includegraphics[width=1\textwidth]{images/path_planning/tsp_polygon_3.pdf}
+\caption{Because the exit node is known, the outgoing weights from node (i) are shifted to node (v). Since the polygon can be entered from any vertex, the same happens to all vertices in the polygon.}
+\end{subfigure}
+
+\end{figure}
+
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{1\textwidth}
+\centering
+\includegraphics[width=0.6\textwidth]{images/path_planning/simple_tsp_figure.pdf}
+\caption{Simple TSP figure: tour startpoint in green, and two elements. Note that the \enquote{inner} vertices of the polyline are removed in the matrix. Gray numbers indicate corresponding matrix indices.}
+\end{subfigure}
+
+\par \bigskip
+
+\begin{subfigure}[b]{1\textwidth}
+\[
+D=\left(
+\begin{array}{ccccccc}
+- & 1812 & 2097 & 1328 & 806 & 156 & 1127 \\
+1 & - & 0 & \infty & \infty & 1959 & 1489 \\
+1 & \infty & - & 0 & \infty & 1173 & 467 \\
+1 & \infty & \infty & - & 0 & 698 & 993 \\
+1 & 0 & \infty & \infty & - & 1717 & 1732 \\
+1 & 1717 & 1959 & 1173 & 698 & - & 0 \\
+1 & 1732 & 1489 & 467 & 993 & 0 & - \\
+\end{array}
+\right)
+\]
+\caption{The corresponding matrix: First row and column are values of the tour start point. Thereafter, the distances of the polygon follow (note how the zeros are shifting and the shifted symmetry of the rightmost columns and bottom rows). The last two entries correspond with the polyline (where the two inner vertices are removed).}
+\end{subfigure}
+\par \bigskip
+\begin{subfigure}[b]{1\textwidth}
+\[
+\left\{ 1, 6, 7, 4, 5, 2, 3, -1 \right\}
+\]
+\captionsetup{singlelinecheck=off}
+
+\caption[Tour indices]{The indices of the shortest tour through the drawing, as returned by the LKH application. 
+\begin{itemize}
+\item Index 1: tour starting point
+\item Indices 6 \& 7: points on the polyline
+\item Indices 4, 5 2, 3: points on the polygon
+\item Index -1: indicates return to start (end of tour).
+\end{itemize}}\label{tour_output_eq}
+\end{subfigure}
+\caption{Drawing, TSP distance matrix and final tour for a simple drawing}\label{simple_tsp_fig}
+\end{figure}
+
+\clearpage
 \section{Smooth Line Connections}
 
-While not required by the robot kinematics of the BeachBot (which can turn on the spot), generating smooth connections is beneficial to the path converter that translates the generated rake path into a robot path that is drivable by the bot. If the curvature at a given point in the connection is too high, it is not possible for the path converter to find a converging solution which makes tedious manual work needed to adjust the curvature of the connections until the converter is able to find a solution. The rounded connections would also create a nice visual effect for spectators.
+While not required by the robot kinematics of the BeachBot (which can turn on the spot), generating smooth connections 
+makes the developed algorithms generalizable for four-wheeled vehicles.
+It is also necessary to constrain the curvature for the path converter that translates the generated rake path into a robot path that is drivable by the bot. If the curvature at a given point of the connection is too high, it is not possible for the path converter to find a converging solution which makes tedious manual work needed to adjust the curvature of the connections until the converter is able to find a solution. The rounded connections would also create a nice visual effect for spectators.
 
 Ideally a way would have to be found that limits the curvature of the connection path.
 
@@ -329,7 +445,7 @@ The quintic Beziér curve consists of 6 control points $P_0 ... P_5$ that define
 
 \subsubsection{Spiro Splines}
 
-Spiro splines, introduced by \cite{levien2009spiral} are a different approach to designing fair curves, initially for the purpose of designing fonts. They have several properties which make them well-suited for the task at hand:
+Spiro splines, introduced by R. Levien \cite{levien2009spiral} are a different approach to designing fair curves, initially for the purpose of designing fonts. They have several properties which make them well-suited for the task at hand:
 
 They offer 4 different control points to control the shape of the curve. In contrast to beziér curves, spiro spline control points are always passed by the generated curve, whereas the bezier curve only goes through the first and last control point. The 4 different control points, denoted by a single character, of spiro splines are:
 
