@@ -1,14 +1,14 @@
 \chapter{Path Planning Algorithms}
-\section{Algorithm Overview}
+\section{Overview}
 
 The output of the path generator should be a single trajectory that completely connects and covers all elements of the drawing.
 
 Derived from the requirements, three different elements were identified as part of drawing (illustrated in \autoref{fig:elements_def}):
 
 \begin{description}
-\item[Polyline] A line consisting of $2$ to $n$ vertices
-\item[Polygon] A closed line, consisting of $2$ to $n$ vertices, where the last segment is a closing one. So that vertex $v_{n+1}$ equals $v_0$.
-\item[Filled Polygon] Defined in the same way as the polygon, except that the inner space should be filled by a generated trajectory. Another difference is that the filled polygon can also contain holes, which should not be covered and be excluded from the fill trajectory.
+\item[Polyline] A line consisting of $2$ to $n$ vertices.
+\item[Polygon] A closed line, consisting of $2$ to $n$ vertices, where the last segment is a closing one. Vertex $v_{n+1}$ coincides with $v_0$.
+\item[Filled Polygon] Defined in the same way as the polygon, except that the inner space should be filled by a generated trajectory. Another difference is that the filled polygon can also contain holes, which should not be covered and are excluded from the fill trajectory.
 \end{description}
 
 The path generation happens in three steps: First, the polygons that have to be filled are selected and the fill algorithm is seperately executed for each of the polygons with polygon specific settings. In a second step all of the drawing elements are connected by an open tour and a Traveling Salesman heuristic minimizes the total driving distance. As last step, the connections are shaped with curves that conform to  a curvature limit.
@@ -42,10 +42,9 @@ One interesting publication in the CAM field is \cite{kao1998optimal} that prese
 
 The OpenCAM library has also been inspected...
 
-	% all the algorithms go here
 \subsection{Mathematical Discussion of Polygons}
 
-The following mathematical definition of a polygon, has been taken from \cite{coxeter1967geometry}:
+The following is a mathematical definition of a polygon (taken from \cite{coxeter1967geometry}):
 
 \enquote{A polygon may be defined as consisting of a number of points (called vertices) and an equal number of line segments (called sides), namely a cyclically ordered set of points in a plane, with no three successive points collinear, together with the line segments joining consecutive pairs of the points. In other words, a polygon is closed broken line lying in a plane}.
 
@@ -56,24 +55,13 @@ Polygons can have several properties that simplify or complicate their treatment
 \item[Convex] In the convex case any line can intersect the polygon only at two points. The interior all have to be smaller than 180°.\cite{weisstein_convex_p}
 \item[Concave] A concave polygon can be intersected more than twice by a given line. Therefore, at least one interior angle has to be larger than 180°.\cite{weisstein_concave_p}
 \item[Self-intersecting] A self intersecting polygon has at least one side which intersects with another side.
+\item[Polygon with Holes] A hole of a polygon is an enclosed or partially enclosed area that is not part of the filled surface of the outer polygon.
 \end{description}
 
 \begin{figure}
 \centering
-\begin{tikzpicture}[y=0.80pt,x=0.80pt,yscale=0.55, xscale=0.55, inner sep=0pt, outer sep=0pt]
-  \path[draw=black,fill=black,line join=miter,line cap=butt,even odd rule,line
-    width=0.800pt] (95.0000,103.7908) -- (50.0000,264.5050) -- (270.7143,278.0765)
-    -- (268.5714,180.9336) -- (192.8571,113.7908) -- (95.0000,103.7908) -- cycle;
-  \path[draw=black,fill=black,line join=miter,line cap=butt,even odd rule,line
-    width=0.928pt] (377.5515,141.0290) -- (320.7928,240.1507) --
-    (440.0823,219.4707) -- (457.3986,308.6089) -- (564.1820,137.4635) --
-    (460.2846,160.2829) -- (391.9817,88.2592) -- (377.5515,141.0290) -- cycle;
-  \path[draw=black,fill=black,line join=miter,line cap=butt,even odd rule,line
-    width=0.631pt] (613.5194,155.6718) -- (619.2365,302.6427) --
-    (717.1421,93.0649) -- (786.4622,339.4964) -- (823.6234,159.6680) --
-    (613.5194,155.6718) -- cycle;
-\end{tikzpicture}
-\caption{Three different polygon types: (a) simple and convex, (b) simple and concave, (c) self-intersecting}
+\includegraphics[width=\textwidth]{images/path_planning/polygon_types.pdf}
+\caption{Four different polygon types, from left to right: (a) simple and convex, (b) simple and concave, (c) self-intersecting, (d) polygon with a hole}
 \label{straight_skel}
 \end{figure}
 
@@ -83,16 +71,16 @@ The first method to cover the area of an arbitrary polygon is the spiral fill me
 
 \subsubsection{Straight Skeleton}
 
-For the case of this thesis, the most interesting property of the straight skeleton is the ability to easily obtain inset polygons with an arbitrary offset. The straight skeleton is defined as the topolgical skeleton of a polygon that is created by moving the edges parallel to themselves inwards at a constant speed and observing the intersections of the vertices (first described by Aichholzer et al. \citet{Aichholzer:jucs_1_12:a_novel_type_of}). 
+For this thesis, the most interesting property of the straight skeleton is the ability to easily obtain inset polygons with an arbitrary offset. The straight skeleton is defined as the topolgical skeleton of a polygon that is created by moving the edges parallel to themselves inwards at a constant speed and observing the intersections of the vertices (first described by Aichholzer et al. (1995) \cite{Aichholzer:jucs_1_12:a_novel_type_of}). 
 It is similar to the median axis of a polygon, but unlike the median axis it is not defined to have a constant distance to the polygon edges. 
-Another commonly used offset mechanism for polygons in motion planning is the Minkowski sum. However, there is no defined Minkowski subtraction, which makes the creation of inset polygons more complicated\footnote{It is possible to create an enclosing polygon, subtract the original polygon and offset the enclosing polygon with hole by taking the minkowski sum (which also offsets the \enquote{hole}).}. An efficient implementation to compute the straight skeleton is discussed in \citet{huber2010computing}.
+Another commonly used offset mechanism for polygons in motion planning is the Minkowski sum. However, there is no defined Minkowski subtraction, which makes the creation of inset polygons more complicated\footnote{It is possible to create an enclosing polygon, subtract the original polygon and offset the enclosing polygon with hole by taking the Minkowski sum (which also offsets the \enquote{hole}).}. An efficient implementation to compute the straight skeleton is discussed by Huber \cite{huber2010computing}.
 
-To create a spiral trajectory, two events that occur during the creation of the straight skeleton, have to be kept in mind (visible in \autoref{straight_skel}): 
+To create a spiral trajectory, two events that occur during the creation of the straight skeleton have to be kept in mind (see \autoref{straight_skel}): 
 
-\begin{itemize}
-\item Edge event: depending on the length difference between the edges, one edge might be reduced to zero sooner than the others, resulting in an edge event. The neighboring edges are adjacent after the event. At this point, the inset polygon will be reduced by one vertex.
-\item Split event: a concave polygon will, at some point during the shrinking process, intersect itself. At the intersection point, a split event happens. After the split event, the number of inset polygons is increased by one.
-\end{itemize}
+\begin{description}
+\item[Edge Event] Depending on the length difference between the edges, one edge might be reduced to zero sooner than the others, resulting in an edge event. The neighboring edges are adjacent after the event. At this point, the inset polygon will be reduced by one vertex.
+\item[Split Event] A concave polygon will, at some point during the shrinking process, intersect itself. At the intersection point, a split event happens. After the split event, the number of inset polygons is increased by one.
+\end{description}
 
 \begin{figure}
 \centering
@@ -163,14 +151,14 @@ To create a spiral trajectory, two events that occur during the creation of the 
 
 The inset polygons are used to create a spiral fill for the polygons. The procedure is as follows:
 
-\begin{itemize}
-\item[(0)] The straight skeleton is generated
-\item[(1)] The first inset polygon is created. The inset distance is the constant width of the rake divided by the number of vertices of the polygon. Through dividing the inset length by the number of vertices in the polygon, one revolution of the spiral will travel one rake distance inwards.
-\item[(2)] If a split event has happened, then it is decided which polygon should be used to extend the current spiral (that is the one with the closer point to the current position). All other newly created polygons are recursively filled by the same algorithm (starting at 0). %Additionally, a starting point to the spiral is passed, so that the beginning of the next spiral will be close to the current one. (The procedure restarts with each split polygon as input at (0)).
-\item[(3)] The closest point to the current point on the inset polygon is searched ($v_n$). The clockwise next vertex of the inset polygon ($v_{n+1}$) is appended to the current spiral
-\item[(4)] The next inset polygon is generated with inset length divided by the number of vertices of the previous inset polygon, and the process continues at (3).
+\begin{enumerate}
+\item The straight skeleton is generated.
+\item The first inset polygon is created. The inset distance is the constant width of the rake divided by the number of vertices of the polygon. Through dividing the inset length by the number of vertices in the polygon, one revolution of the spiral will travel one rake distance inwards.
+\item If a split event has happened, then it is decided which polygon should be used to extend the current spiral (that is the one with the closer point to the current position). All other newly created polygons are recursively filled by the same algorithm. %Additionally, a starting point to the spiral is passed, so that the beginning of the next spiral will be close to the current one. (The procedure restarts with each split polygon as input at (0)).
+\item The closest point to the current point on the inset polygon is searched ($v_n$). The next vertex of the inset polygon in clockwise direction ($v_{n+1}$) is appended to the current spiral
+\item The next inset polygon is generated with inset length divided by the number of vertices of the previous inset polygon, and the process continues at (4).
 
-\end{itemize}
+\end{enumerate}
 
 \begin{algorithm}[H]
 \begin{algorithmic}
@@ -206,7 +194,7 @@ The inset polygons are used to create a spiral fill for the polygons. The proced
 
 \end{algorithm}
 
-The algorithm is both displayed in pseudo code \autoref{spiral_fill} and graphically in  \autoref{fig:insetting}. 
+The algorithm is both displayed in Algorithm 1 and graphically in \autoref{fig:insetting}. The result of the algorithm is presented in \autoref{fig:gen_spiral}.
 
 \begin{figure}[htbp]
 	\centering
@@ -250,17 +238,17 @@ The algorithm is both displayed in pseudo code \autoref{spiral_fill} and graphic
 
 \subsection{Zig Zag Filling}
 
-This fill method is quite straightforward: The polygon is filled by a number of lines that are parallel to each other and clipped at the polygon edges. The direction of the lines can be freely chosen.
+This fill method is quite straightforward: the polygon is filled by a number of lines that are parallel to each other and clipped at the polygon edges. The direction of the lines can be freely chosen.
 
-To place the lines, a starting point is determined. If the chosen line direction is inclined more than 45°, the leftmost vertex is used as starting point, or else if the inclination is smaller, the bottommost vertex is selected.
+To place the lines, the starting point is determined. If the chosen direction for the fill lines is inclined by more than 45°, the leftmost vertex is used as starting point, otherwise if the inclination is smaller, the bottommost vertex is selected.
 
-Starting from the start point, lines in the specified direction are placed and the polygon edges are tested for intersection. If two intersections for a given line are found, a line segment with those two points is added to the resulting trajectory. If no two intersections are found anymore, the algorithm stops.
+Beginning from the starting point, a line in the specified direction is placed and the polygon edges are tested for intersection. If two intersections on the polygon edge for a given line are found, a line segment with those two intersection points is added to the resulting trajectory. The starting point of the line is translated by the specified rake width constant in the direction normal to the chosen direction and the process is repeated. In the case that no two intersections are found any more, the algorithm stops.
 
-This method works very well for convex polygons, but has drawbacks for non-convex polygons, since a non convex polygon can have more than two intersections for any given line. Therefore it requires the polygon to be decomposed into convex parts. It was decided to use the optimal convex partitioning with the algorithm by Greene, described in \cite{greene1983decomposition}. The decomposed parts have vertices that coincide with the original vertices. Since it is an optimal convex partitioning algorithm, the number of created convex polygons is minimal (therefore the size of each decomposed part is maximized). Having larger decomposed parts is positive for the trajectory, because fewer turns in general reduce the drawing time and make for a more consistent look.
+This method works very well for convex polygons, but is not applicable for non-convex polygons, since a non convex polygon can have more than two intersections for any given line. Therefore it requires the polygon to be decomposed into convex parts. It was decided to use the optimal convex partitioning with the algorithm by Greene \cite{greene1983decomposition}. The decomposed parts have vertices that coincide with the original vertices. Since it is an optimal convex partitioning algorithm, the number of created convex polygons is minimal (therefore the size of each decomposed part is maximized). Having larger decomposed parts is positive for the trajectory, because fewer turns in general reduce the drawing time and make for a more consistent look.
 
 Additionally, the created segments (or the convex polygon) are offseted by a certain margin inwards to make way for the turns and reduce the amount of drawing that extends to the outside. As last step, each segment is driven with the rake lowered and the complete polygon is also traversed.
 
-Because the zig zag filling can be thought of as one continuous line all generated lines are already connected with an \textit{enforced connection} (which is explained later) to also reduce the amount of free connection points that the Traveling Salesman algorithm has to examine.
+Because the Zig Zag filling can be thought of as one continuous line, all generated lines are connected with an \textit{enforced connection} (which is explained later) to reduce the amount of free connection points that the Traveling Salesman algorithm has to examine.
 \begin{figure}
 \centering
 \begin{subfigure}[b]{0.6\textwidth}
@@ -278,43 +266,46 @@ Because the zig zag filling can be thought of as one continuous line all generat
 \begin{subfigure}[b]{0.8\textwidth}
 \includegraphics[width=\textwidth]{images/path_planning/zigzag_user_segment_and_fill.pdf}
 \end{subfigure}
-\caption{The user can choose an arbitrary segmentation and zig zag direction in the user interface}
+\caption{Users can choose an arbitrary segmentation and Zig Zag direction in the user interface}
 \end{figure}
 
 \section{Path Generation}
-As already mentioned, to finally create a drawing all elements have to be connected by support trajectories that are not part of the drawing and where the robot drives with the rake lifted. The supporting paths should have two properties: The total distance of all support paths should be as small as possible and the curvature of the connections should be limited.
+As already mentioned, to finally create a drawing all elements have to be connected by support trajectories that are not part of the drawing (where the robot drives with the rake lifted). The supporting paths should have two properties: the total distance of all support paths should be as small as possible and the curvature of the connections should be limited.
 
-As previously defined, a drawing consists of the three different types: Lines, polygons and filled polygons. Lines and polygons differ in the way they can be connected, as illustrated in \autoref{fig:connect}. A line has two connection points and is traversed from one end to the other. A polygon however can be entered at any vertex, but can only be exited at the same vertex so that the polygon is closed. Filled polygons work the same as the regular polygon in that sense, since the spiral and the zig zag filling create a polyline that is inserted into the filled polygon.
+As previously defined, a drawing consists of the three different element types: lines, polygons and filled polygons. Lines and polygons differ in the way they can be connected, as illustrated in \autoref{fig:connect}. A line has two free connection points and is traversed from one end to the other. A polygon however can be entered at any vertex, but can only be exited at the same vertex so that it is closed. Filled polygons work the same as the regular polygon in that sense, since the spiral and the zig zag filling create a polyline which is inserted into the polygon.
 
 \begin{figure}
 \includegraphics[width=0.8\textwidth]{images/path_planning/traversal.pdf}
-\caption{Possible entry- and exit vertices and direction of traversal for polylines and polygons. Note that the polygon could also be traversed in clockwise direction.}
+\caption{Possible entry- and exit vertices and direction of traversal for polylines and polygons. Note that the polygon could also be traversed in clockwise direction.}\label{fig:connect}
 \end{figure}
 
 \subsection{Traveling Salesman Problem}
 
-The task of connecting the drawing elements is similar to that of a Traveling Salesman Problem.
-The \textit{Traveling Salesman Problem} (TSP) is the problem of finding the minimum-weight Hamiltonian Circuit in a weighted graph. A weighted graph is a graph where every edge between two vertices has a certain weight. The Hamiltonian Circuit is defined as a tour through the graph, that travels to every vertex exactly once. It is called traveling salesman problem because in the historical context the vertices were cities, the weights Euclidean distances and the salesman, seeking to minimize the distance traveled to do a roundtrip through all the cities in a given tour, would seek to obtain a solution for this problem. However, one of the properties of the traveling salesman problem that make this problem difficult to solve is that it is \textit{Non-deterministic Polynomial-time hard} (NP-hard) which means that, although the non-existence has not yet been proven, there is as of now no polynomial-time solution. If no heuristic is used, the amount of solutions that have to be searched in order to test all available possibilities is $n!$.
+The task of connecting the drawing elements is similar to that of a Travelling Salesman Problem.
+The \textit{Travelling Salesman Problem} (TSP) is the problem of finding the minimum-weight Hamiltonian Circuit in a weighted graph. A weighted graph is a graph where every edge between two vertices has a certain weight associated. The Hamiltonian Circuit is defined as a tour through the graph that travels to every vertex exactly once forms a cycle. It is called travelling salesman problem because in the historical context the vertices were cities, the weights Euclidean distances and the salesman, seeking to minimize the distance travelled to do a round-trip through all the cities in a given tour, would seek to obtain a solution for this problem. However, one of the properties of the TSP that make this problem difficult to solve is that it is \textit{Non-deterministic Polynomial-time hard} (NP-hard) which means that, although the non-existence has not yet been proven, there is as of now no polynomial-time solution. If no heuristic is used, the amount of solutions that have to be searched in order to test all available possibilities is \enquote{$n!$}.
 
-The weights of the problem are usually defined in a distance matrix  $M^{n \times n}$ matrix, where the elements are given by $d_{ij}$.
+The weights of the problem are usually defined in a distance matrix  $D^{n \times n}$ matrix, where $n$ is the number of vertices in the graph and the elements in the matrix are given by $d_{ij}$.
 
-The following properties for a general Traveling Salesman Problem are defined:
+The following properties for a general Travelling Salesman Problem are defined:
 
 \begin{description}
-\item[Symmetric] A TSP is symmetric if all distances between every node pair are symmetric (equal) in both directions ($d_{ij} = d_{ji} ~ \forall ~ i, j$).
-\item[Metric] In a metric TSP, all distances conform to the triangle inequality $d_{xy} \leq d_{xz} + d_{zy} $ which is, for example, true if the distances are calculated using the Euclidean distance formula between two points: $d_{ij} = \sqrt{(x_i -x_j)^2 + (y_i - y_j)^2}$ but also for the so called Manhattan distance which is defined as ${d_{ij}^M} = |x_i-x_j| + |y_i - y_j|$.
-\item[Asymmetric] If $d_{ij} \neq d_{ji}$ for at most one distance pair, then the TSP is asymmetric. The triangle inequality is not guaranteed to be fulfilled any more.
+\item[Symmetric] A TSP is symmetric if all distances between every node pair are symmetric (equal) in both directions ($d_{ij} = d_{ji} ~ \forall ~ i, j \mbox{ , } D^\intercal = D$).
+\item[Metric] In a metric TSP, all distances conform to the triangle inequality $d_{xy} \leq d_{xz} + d_{zy} $ which is, for example, true if the distances are calculated using the Euclidean distance formula between two points: $d_{ij} = \sqrt{(x_i -x_j)^2 + (y_i - y_j)^2}$. Or for the so called Manhattan distance which is defined as ${d_{ij}^M} = |x_i-x_j| + |y_i - y_j|$.
+\item[Asymmetric] If $d_{ij} \neq d_{ji}$ for at least one distance pair, then the TSP is asymmetric. The triangle inequality is not guaranteed to be fulfilled any more.
 \end{description}
 
-The easiest heuristic to the TSP is the nearest neighbour search. From a given startpoint the nearest, unvisited vertex is searched and connected. This is done until no more unvisited elements exist. Positive about the nearest neighbour approach is that the complexity is only growing linear to the search size. However, the obtained solutions are often of unsatisfying quality.
+The easiest heuristic to the TSP is the nearest neighbour search. From a given starting point the nearest and unvisited vertex is searched and connected. This is done until no more unvisited elements exist. Positive about the nearest neighbour approach is that the complexity is only growing linear to the search size. However, the obtained solutions are often of unsatisfying quality.
 
-Another standard heuristic is the branch and bound method. It works by splitting the set of possible solution into two sets and by calculating a upper and lower bound for both sets. If the upper bound of the first is lower than the lower bound of the second, the second is discarded. During the course of this thesis a variant of the depth-first branch and bound search was implemented. First, the graph is traversed until a tour is completed. Afterwards, another tour is recursively started. As soon as the traveled distance of the entire tour in the new branch gets higher than the current minimum tour, the branch is discarded. While this already reduces the search space, the effect becomes relatively small on larger problems (e.g. the first 6 out of 15 nodes might only seldomly span a tour where the distance is higher than the current minimum, and it gets only worse). The implementation has not been very mature, and it actually produces an optimal tour in the current implementation, which is not necessarily desired in a heuristic, that should sacrifice quality for speed. With more level-wise bounds it could have been further improved. 
+Another standard heuristic is the branch and bound method. It works by splitting the set of possible solutions into two sets and calculating an upper and lower bound for both sets. If the upper bound of the first set is lower than the lower bound of the second, the second is discarded (and vice versa). During the course of this thesis a variant of the depth-first branch and bound search was implemented. First, the graph is traversed until a tour is completed. Afterwards, another tour is recursively started. As soon as the travelled distance of the entire tour in the new branch gets higher than the current minimum tour, the branch is discarded. 
+While this already reduces the search space, the effect becomes relatively small on larger problems (e.g. the first 6 out of 15 nodes might only seldom span a tour where the distance is higher than the current minimum, and it gets only worse). Only the basic version of the heuristic was implemented.
 
-While the branch-and-bound implementation was not very mature and could have been optimized by a good margin, it became clear that, for a drawing of reasonable size, a state-of-the-art implementation had to be found. Currently there are, among others, two well-known state of the art implementations for the TSP\footnote{according to \url{http://www.adaptivebox.net/CILib/code/tspcodes_link.html}}: Concorde\footnote{\url{http://www.math.uwaterloo.ca/tsp/concorde.html}} and the Improved Lin-Kernighan Heuristic of Helsgaun (LKH)\cite{helsgaun2000effective}\cite{kernighan1970efficient}. The Concorde solver is described by \cite{hornik2007tsp} as \enquote{one of the best exact TSP solvers currently available}. However, it only works with symmetric distance matrices. While it is possible to transform a general non-Euclidean asymmetric problem into a symmetric one, the resulting matrix is bigger (in the case of \cite{kumar1996asymmetric} the transformed distance matrix is of size $2n \times 2n$). Contrary to the Concorde solver, the Improved LKH of Helsgaun is able to directly work with asymmetric distance matrices, which makes it an ideal candidate for the purpose of this thesis. Furthermore, it is using a heuristic which is not guaranteed to obtain optimal solutions, but optimal solutions are arguably not needed for the case of a sand drawing.
+%The implementation has not been very mature, and it actually produces an optimal tour in the current implementation, which is not necessarily desired in a heuristic, that should sacrifice quality for speed. With more level-wise bounds it could have been further improved. 
 
-The Lin-Kernighan heuristic is a local search optimization algorithm that works by using 2-opt and 3-opt moves. For a 2-opt move, 2 connections between 4 vertices are \enquote{cutted} and the only other  possible connection is checked (there is only one other possible connection because otherwise two closed tours would result). If the resulting tour is shorter, it is picked as new basis tour. Repeating this step generates a more optimal solution each time.
+While the branch-and-bound implementation could have been optimized by a good margin, it became clear that for a drawing of reasonable size a state-of-the-art implementation had to be found. Currently there are, among others, two well-known state of the art implementations for the TSP\footnote{according to \url{http://www.adaptivebox.net/CILib/code/tspcodes_link.html}}: Concorde\footnote{\url{http://www.math.uwaterloo.ca/tsp/concorde.html}} and the Improved Lin-Kernighan Heuristic of Helsgaun (LKH)\cite{helsgaun2000effective}\cite{kernighan1970efficient}. The Concorde solver is one of the best currently available solvers which produce an exact solution\cite{hornik2007tsp}. However, it only works with symmetric distance matrices. While it is possible to transform a general non-Euclidean asymmetric problem into a symmetric one, the resulting matrix is bigger (in the case of \cite{kumar1996asymmetric} the transformed distance matrix is of size $2n \times 2n$), which will increase the computation time. Furthermore, an exact solution is not needed. Contrary to the Concorde solver, the Improved LKH of Helsgaun is able to directly work with asymmetric distance matrices, which makes it an ideal candidate for the purpose of this thesis. Furthermore, it is using a heuristic which is not guaranteed to obtain optimal solutions, but optimal solutions are arguably not needed for the case of a sand drawing.
 
-An extension of the 2-opt move is the 3-opt move, where connections between 6 vertices (3 connections) are removed and all new connection possibilities are evaluated. The Lin-Kernighan algorithm extends this even further and works with $\lambda\text{-opt}$ moves. This generally degrades the run time to $\mathcal{O}(n^\lambda)$. Therefore the Lin-Kernhighan algorithm uses variable $\lambda\text{-opt}$ moves: starting at $\lambda=2$ at each step is evaluated if $\lambda$ should be increased by adding one or not through applying a series of tests. At a stopping condition this process ends.
+The Lin-Kernighan heuristic is a local search optimization algorithm that works by using 2--opt and 3--opt moves. For a 2--opt move, 2 connections between 4 vertices are cut and the only other possible connection is checked (there is only one other possible connection because otherwise two closed tours would result). If the resulting tour is shorter, it is picked as new basis tour. Repeating this step generates a more optimal solution each time.
+
+An extension of the 2--opt move is the 3--opt move, where connections between 6 vertices (3 connections) are removed and all new connection possibilities are evaluated. The Lin-Kernighan algorithm extends this even further and works with $\lambda\text{--opt}$ moves. This generally degrades the runtime to $\mathcal{O}(n^\lambda)$. Therefore the Lin-Kernhighan algorithm uses variable $\lambda\text{-opt}$ moves: starting at $\lambda=2$ at each step is evaluated if $\lambda$ should be increased by one or not through applying a series of tests. At a stopping condition this process ends.
 
 The author, Keld Helsgaun, also demonstrates how the specific LKH implementation is suited to solve the equality generalized\citep{helsgaun2013equality} as well as the clustered TSP\cite{helsgaun2014solving}. A combination of both cases is used in this thesis to find a high quality tour through the drawing of.
 
@@ -325,31 +316,35 @@ The LKH solver uses the \textit{TSPLIB}\footnote{\url{http://www.iwr.uni-heidelb
 % all three methods we tried, including LKH
 \subsection{Adaptation of Traveling Salesman Problem for the Algorithm}
 
-To find a suited tour with the generic LKH solver, the correct weights for the distance matrix have to be specified. This happens in the following steps:
+To find a suited tour with the generic LKH solver, the correct weights for the distance matrix have to be specified. The term \enquote{outgoing} is used for all weights from one specific vertex to all other vertices and \enquote{ingoing} for the weights from all vertices of the graph to one vertex. This happens in the following steps:
 
 \begin{itemize}
 \item On polylines, all vertices that are not the first or last node are removed, since they can never be accessed without entering at either the first or last node 
 \item Polygons can be entered at any node. However, once entered, the polygon cannot be exited at any location but must be traversed completely. To enforce this, the weights on the polygon edges are set to be zero for the next vertex in clockwise direction and infinity for all other nodes of the polygon.
-\item Every node is only visited once. This leads to problems in polygons, where the tour should be closed. There are two possible solutions: Double cities or weight shifting. Since the double cities approach is doubling the number of cities it is clearly the less optimal approach. Because it is known that entering at node $n$ will result in the visitor ending up at node $n-1$ (all edges are zero), using the weight shifting method, the outgoing weights of the polygon at node $n$ are shifted to node $n-1$. Thereby, the elementwise symmetry is restored and a optimal solution can be found with a generic TSP solver. In a post processing step, the polygon is closed again.
-\item All other edge weights are the euclidean distances between the vertex pair
+\item Every node is only visited once. This leads to problems in polygons, where the tour should be closed. There are two possible solutions: double cities or weight shifting. With the double cities approach (illustrated in \autoref{fig:doublecities}), each vertex on the polygon is added two times to the distance matrix: one with Euclidean distances as ingoing weights and all outgoing weights set to $\infty$ and the second with Euclidean distances as outgoing weights and ingoing weights set to $\infty$. The weights between all cities on the polygon are set to zero in one direction, i.e., clockwise (also between the double cities). Therefore the exit city has to be positioned \textit{behind} the entry city, so that it is the last visited city by the algorithm which is forced to close the circuit around the polygon. Since the double cities approach is doubling the number of cities it is clearly the less optimal approach. Because it is known that entering at node $n$ will result in the visitor ending up at node $n-1$ if all edges are zero, using the weight shifting method, the outgoing weights of the polygon at node $n$ are shifted to node $n-1$. Thereby, the element-wise symmetry is restored and a optimal solution can be found with a generic TSP solver. In a post processing step, the polygon is closed again.
+\item All other edge weights are the Euclidean distances between each vertex pair.
+\item A regular TSP tour is closed. This implies that a regular tour has a tendency to go back to the starting point after diverging into another direction at the start of the tour. The solution that was found is to enforce a defined starting point with special properties to be inserted. The outgoing weights of the start point are either euclidean distances or defined to be set to the same value to every node in the graph. If they are euclidean, it is very likely that the first visited line is the nearest neighbour. If the outgoing weights are all defined to be a constant value the LKH can find the best suited first tour point on its own because the starting point will not induce any preference for any of the nodes.
+With the same reasoning, the weights pointing back to the starting point are chosen to be equal for all nodes. Thus, the TSP will never optimize towards travelling back to the starting point.
 \end{itemize}
 
-A regular TSP tour is closed. This implies that a regular tour has a tendency to go back to the starting point after diverging into another direction at the beginning. The solution that was found is to enforce a defined start point to be inserted. The outgoing weights of the start point are either euclidean distances or defined to be the same to every node in the graph. If they are euclidean, chances are very high that the starting line is the nearest neighbour. If the outgoing weights are all defined to be $1$ the LKH can find the best suited start point on it's own because the startpoint will not induce any preference for any of the nodes.
+How the weights are aquired is also illustrated in \autoref{fig:illdistweights}. The distance matrix of a simple drawing is shown in \autoref{simple_tsp_fig}.
 
-The ingoing weights for the startpoint are chosen to be equal for all nodes. Thus, the TSP will never optimize towards traveling back to the start point.
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{images/path_planning/double_cities.pdf}
+\caption{Double cities approach to solve the TSP on a polygon.}\label{fig:doublecities}
+\end{figure}
 
-As example, the matrix of a a simple drawing is shown in \autoref{simple_tsp_fig}.
-
-\paragraph{Reprojecting the Tour} The output of the LKH algorithm is a text file with ordered \textit{tour indices} (shown in \autoref{tour_output_eq}. The text file is read back in the main program and evaluated. Since the LKH algorihtm is not aware of the structure of the problem at hand, the indices have to be \enquote{projected} to the drawing elments. The tour indices correspond to the matrix indices and the ordering is that of the shortest found tour through the elements, vertex by vertex.
+\paragraph{Reprojecting the Tour} The output of the LKH algorithm is a text file with ordered \textit{tour indices} (shown in \autoref{tour_output_eq}). The text file is read back in the main program and evaluated. Since the LKH algorihtm is not aware of the structure of the problem at hand, the indices have to be \enquote{projected} to the drawing elments. The tour indices correspond to the matrix indices and the ordering is that of the shortest found tour through the elements, vertex by vertex.
 To connect all elements in the way the tour was found, first the tour starting point is searched among the tour indices (the tour starting point index is always \enquote{1}).
 
 All other indices have to be saved beforehand and need to be reapplied now: The tour index corresponds to a vertex on a given element. The elements are now connected in the order they appear in the found tour. For the connection only the first tour index on each element is relevant, because the exit point of the element is trivially known for each type of element when the entry point is given.
  
-\paragraph{Enforcing Connections} If the found solution is not sufficient or satisfying, the user might want to alter the tour. This works through the enforcement of connections between two connection points on the elements. If two elements have an enforced connection, they can be represented by a single line with entry and exit point and an unknown traversal direction. This is due to the fact that if one point on an element is connected, there is a trivially known other point that is the last \enquote{available} point. E.g. if a polygon has an enforced connection at vertex $v_i$, it is known that $v_i$ will also be either start- or endpoint for the connected elements because the polygon loop has to be closed. Similarly, if the first or last point of a polyline has an enforced connection the other is the remaining free point that can still be used to connect to other elements. Thus, instead of the single elements, the start and endpoint of said \enquote{imaginary} polyline is added to the distance matrix and the tour is completed during the post processing. An element with two enforced connections is completely ignored in the distance matrix, since it has no free connection points.
+\paragraph{Enforcing Connections} If the found solution is not sufficient or satisfying, the user might want to alter the tour. This works through the enforcement of connections between two points on the elements. If two elements have an enforced connection, they can be represented by a single line with entry and exit point and an unknown traversal direction. This is due to the fact that if one point on an element is connected, there is a trivially known other point that is the last available connection point. For example, if a polygon has an enforced connection at vertex $v_i$, it is known that $v_i$ will also be either start- or endpoint for the connected elements because the polygon loop has to be closed. Similarly, if the first or last point of a polyline has an enforced connection the other is the remaining free connection point that can be used to connect to other elements. Thus, instead of the single elements, the start and endpoint of said \enquote{imaginary} polyline are added to the distance matrix and the tour is completed during the post processing. An element with two enforced connections is completely ignored in the distance matrix, since it has no free connection points.
 
 \paragraph{Containment Properties}
 
-A polygon can enclose a set of lines, for example. Generally, to avoid the crossing of too many lines, it is undesired to enter this enclosing polygon twice. Therefore the weights of the polygon vertices towards the inner set of lines is set to $\infty$. Thus the tour will always start on the inside and travel further outside.
+A polygon can enclose other elements, such as a polygon or a set of lines. Generally, to avoid crossing too many lines, it is undesired to enter this enclosing polygon twice. Therefore the weights of the polygon vertices towards the inner elements are set to infinity. Thus the tour will always start on the inside and continue to travel further outside.
 
 \begin{figure}
 \centering
@@ -361,7 +356,7 @@ A polygon can enclose a set of lines, for example. Generally, to avoid the cross
 ~
 \begin{subfigure}[b]{0.45\textwidth}
 \includegraphics[width=1\textwidth]{images/path_planning/tsp_polygon.pdf}
-\caption{A polygon with the traversal direction on the polygon itself: Only the clockwise direction is \enquote{allowed} (arbitrarily chosen).}
+\caption{A polygon with the traversal direction on the polygon itself: Only the clockwise direction is allowed (arbitrarily chosen).}
 \end{subfigure}
 
 \par\bigskip
@@ -375,7 +370,7 @@ A polygon can enclose a set of lines, for example. Generally, to avoid the cross
 \includegraphics[width=1\textwidth]{images/path_planning/tsp_polygon_3.pdf}
 \caption{Because the exit node is known, the outgoing weights from node (i) are shifted to node (v). Since the polygon can be entered from any vertex, the same happens to all vertices in the polygon.}
 \end{subfigure}
-
+\caption{Illustrating how weights for the distance matrix are determined}\label{fig:illdistweights}
 \end{figure}
 
 

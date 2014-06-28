@@ -9,15 +9,19 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="744.09448"
-   height="1052.3622"
+   width="1031.8596"
+   height="252.48997"
    id="svg4652"
    version="1.1"
    inkscape:version="0.48+devel r"
-   viewBox="0 0 744.09448 1052.3622"
+   viewBox="0 0 1031.8596 252.48999"
    sodipodi:docname="polygon_types.svg">
   <defs
      id="defs4654">
+    <inkscape:path-effect
+       is_visible="true"
+       id="path-effect4782"
+       effect="spiro" />
     <inkscape:path-effect
        effect="spiro"
        id="path-effect4670"
@@ -38,9 +42,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="391.13667"
-     inkscape:cy="635.57421"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="300.70873"
+     inkscape:cy="-67.241868"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -48,7 +52,11 @@
      inkscape:window-height="1378"
      inkscape:window-x="0"
      inkscape:window-y="27"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
   <metadata
      id="metadata4657">
     <rdf:RDF>
@@ -64,7 +72,8 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-49.351667,-87.113218)">
     <path
        style="fill:#000000;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 94.999987,103.79075 L 49.999994,264.50504 L 270.71429,278.07647 L 268.57143,180.93361 L 192.85715,113.79075 L 94.999987,103.79075 Z"
@@ -85,6 +94,11 @@
        id="path4668"
        inkscape:path-effect="#path-effect4670"
        inkscape:original-d="M 613.51943,155.67184 L 619.23655,302.64271 L 717.14214,93.064915 L 786.46216,339.49643 L 823.62339,159.66802 Z"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:#000000;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 904.98656,130.42248 L 859.98656,291.13537 L 1080.6994,304.70763 L 1078.5569,207.56506 L 1002.844,140.42248 L 904.98656,130.42248 Z M 975.80688,204.84435 L 1036.4162,249.79552 L 1009.1428,279.59631 L 964.69555,285.65685 L 946.51391,263.43224 L 975.80688,204.84435 Z"
+       id="path4780"
        inkscape:connector-curvature="0" />
   </g>
 </svg>
