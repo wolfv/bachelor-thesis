@@ -26,7 +26,9 @@ Line drawings consist of no filled areas. This type of drawing is easily created
 
 \subsection{The Lion Drawing}
 
-The lion was one of the earliest drawings that the BeachBot was able to reproduce on the beach canvas. It is also available as part of the distributed source of the application (\texttt{assets/lion\_example.svg}).
+The lion was one of the earliest (manual) drawings that the BeachBot was able to reproduce on the beach canvas. The generated path resembles the manual drawing very closely. Adding two enforced connections forces the TSP to take the same route than the manual drawing.
+
+Note that the outer roundings visible at the feets and the mane are created by the spiro connection: the paths are cut at these points.
 
 \begin{figure}[h]
 \begin{subfigure}[t]{0.45\textwidth}
@@ -58,8 +60,7 @@ The lion was one of the earliest drawings that the BeachBot was able to reproduc
 \clearpage
 
 \subsection{The Shark Drawing}
-
-Another line drawing, with a closed polygon, is the \enquote{Danger, Sharks} drawing.
+Another line drawing, with a closed polygon, is the \enquote{Danger, Sharks} drawing. The drawing had to be slightly adapted due to some advanced SVG features used in the original image. Therefore, one wave is missing, which could have easily been added. The triangular polygon surrounds the other drawing elements. In  the second image it is shown how the TSP modification described in \autoref{sec:cont} reacts.
 
 \begin{figure}[h]
 \centering
@@ -106,6 +107,10 @@ Another line drawing, with a closed polygon, is the \enquote{Danger, Sharks} dra
 \section{Drawings with Filled Areas}
 \subsection{ASL Logo}
 
+Various spiral fills are demonstrated on the ASL logo and a typesetted ASL lettering. It is clearly visible that the spiral filling works well for convex shapes.
+
+
+
 \begin{figure}[h]
 \centering
 \begin{subfigure}[t]{0.95\textwidth}
@@ -115,11 +120,36 @@ Another line drawing, with a closed polygon, is the \enquote{Danger, Sharks} dra
 \end{subfigure}\\
 \begin{subfigure}[t]{0.95\textwidth}
 	\includegraphics[width=\textwidth]{images/results/asl/asl_font.pdf}
-	\caption{ASL written in a highly concave font.}
+	\caption{ASL written in a highly concave font. Note how the polygon with holes (\enquote{A}) was reduced to a regular polygon by adding a cut from the hole to the outer boundary.}
 \end{subfigure}
-\caption{Comparison of manual and automatically generated \textit{Danger, Shark} trajectory}
+\caption{ASL Logo and lettering.}
 \end{figure}
 
+\clearpage
+\subsection{The GNU Logo}
+
+As case study, the \textit{GNU} Logo is presented. The emblematic gnu head is further simplified by manually tracing the outlines and removing superflous details with which the BeachBot would have difficulties to reproduce. With the simplified image as input, the path generator first generates a fill for the horns and the beard and then connects all elements by support trajectories.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+	\includegraphics[width=\textwidth]{images/results/gnu/logo.pdf}
+	\caption{The original gnu logo. Source: \url{https://www.gnu.org/graphics/heckert_gnu.svg}}
+\end{subfigure}~
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+	\includegraphics[width=\textwidth]{images/results/gnu/simplified_logo.pdf}
+	\caption{Simplified version by manually tracing the image in Inkscape.}
+\end{subfigure}\\
+
+\begin{subfigure}[t]{0.95\textwidth}
+\centering
+	\includegraphics[width=\textwidth]{images/results/gnu/gnu_exported.pdf}
+	\caption{The generated path.}
+\end{subfigure}
+\caption{Modifying the GNU logo to create beach art.}
+\end{figure}
 %\subsection{A \textit{Maleficient} Character}
 
 %\begin{figure}[h]

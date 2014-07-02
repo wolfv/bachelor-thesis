@@ -22,11 +22,31 @@ A not complete list of possible commands is listed below:
 \item[\texttt{Z}] Closes the element.
 \end{description} 
 
+A example \texttt{<path>} element could look like the following:\\ \\  \texttt{<path d="M 160,175.21933 L 154.28571,455.21933 L 494.28571,409.50504 L 395.71429,192.36218 C 317.14286,84.314941 238.57143,55.200854 160,175.21933 z"/>}
+
 The SVG parser is implemented in Python. After an initial attempt to use an implementation by the author, it reached a certain limit of complexity that was needed to deal with output produced by Inkscape, and a rewrite would have been imminent. The implementation did not regard element-wise transforms nor to inheritance of group transforms, where a parsing tree structure would be needed. Luckily, a good implementation of all necessary features for the path generation was found online, called \enquote{svg} \footnote{\url{https://github.com/cjlano/svg}}.
 
 It was enhanced by an attribute parser and some smaller changes to the inner workings were made to produce the necessary output. The SVG parser also has functions to reduce Beziér splines to a polyline by evaluating the polynomial at certain, linearly distributed intervals of $t \in [0, 1]$. The resulting points are not equally spaced, which is a property of Beziér curves. The points are, however, more densly spaced in regions where the curvature is higher and that is actually positive as the region with the most change gets the most \enquote{attention}. 
 
-A wrapper script was created that exports two functions to the main path generator and passes the parsed objects.	
+The output of the SVG parser are the elements of the drawings that are discretized to polygons and polylines (depending on if they are closed or not). A wrapper script was created that exports two functions to the main path generator and passes the parsed objects.	
+
+\subsubsection{Drawing Syntax} 
+
+To denote the different rake widths and other drawing information, a special drawing syntax was created, that is also shown in \autoref{fig:d_syntax}:
+
+Lines or Objects with a stroke color except for white, red and green and a non-zero stroke width will be drawn with the rake in a lowered position. The stroke width indicates the size of the lowered rake. At the moment the rake is only used symmetrically. This means that there are 4 different line widths available: 1, 3, 5 and 7 pin pairs. These pins are mapped to the SVG stroke widths 1, 3, 5 and 7. Everything bigger than a stroke width of 7 will be drawn with the rake completely lowered.
+
+A \textit{red line} was introduced so it is possible to visually see and modify the lines that the robot is driving but with the rake in a upward position.
+
+A \textit{green line} indicates the startpoint. While a startpoint is not a line but rather a point, only the last point of this line is indicating the start point.  Therefore it advisable to keep the start-\textit{line} as short as possible. A line was used, because a single point can not be easily represented in the parser.
+
+A surface for which a fill should be generated is created by assigning a fill color different from transparent or white to the closed SVG element.
+
+\begin{figure}
+\centering
+    		\includegraphics[width=\textwidth]{images/implementation/lines_terminology.pdf}
+		\caption{Different line widths and types: 1px to 7px, red (Hex: \texttt{0xFF0000}), green (Hex: \texttt{0x00FF00}), a filled shape and a shape with a contour. Note that the line widths on contour shapes can equally vary and have the same connotations as other lines.}\label{fig:d_syntax}
+\end{figure}
 
 \section{Element Polymorphism}\label{sec:elem}
 
@@ -74,14 +94,14 @@ CGAL contains algorithms for the straight skeleton methods\cite{cgal:c-sspo2-14a
 
 After the complete trajectory for the drawing process was evaluated and, eventually modified, in the graphical user interface, the post processing step does two enhancements.
 
-First, the edges of the trajectory are rounded. The fill elements are receiving an inner rounding, whereas the outer elements (polygon boundaries) are rounded by analysing a threshold angle. If the angle is too sharp, the trajectory will create an outer loop so that the edges will stay sharp (illustrated in \autoref{fig:rounding}. Otherwise, the rounding is also on the inner side. Both inner and outer rounding are created by applying vector math to the problem. For the outer rounding, vectors along both tangents are elongated until the distance between the endpoints fits an arc with radius $r$. While this works for the general case, it shows undesired behaviour for small angles. The tangents have to be very far elongated until the arc fits between, approaching an elongation length of inifinity for a 0 degree angle between the tangents. This behaviour is obviously undesired. Therefore, an implementation based on the spiro connections between elements was thought of but not yet implemented. 
+First, the edges of the trajectory are rounded. The elements are rounded by analysing a threshold angle. If the angle is smaller than the threshold, the trajectory will create an outer loop so that the edges will stay sharp (illustrated in \autoref{fig:rounding}. Otherwise, the rounding is done on the inner side. Both inner and outer rounding are created by applying vector math to the problem. For the outer rounding, vectors along both tangents are elongated until the distance between the endpoints fits an arc with radius $r$. While this works for the general case, it shows undesired behaviour for small angles. The tangents have to be very far elongated until the arc fits between, approaching an elongation length of inifinity for a 0 degree angle between the tangents. This behaviour is obviously undesired. Therefore, an implementation based on the spiro connections between elements was thought of but not yet implemented. 
 
 In the next step, all connecting curves are discretized to polylines and the complete trajectory is equally spaced with points and corresponding rake states, so that it can easily be handled by the \textit{Path Converter} or directly be passed to the point following controller of the BeachBot.
 
 \begin{figure}
 \centering
 \includegraphics[width=0.5\textwidth]{images/implementation/rounding_edges.pdf}
-\caption{Rounding edges either on the inside or the outside.}
+\caption{Rounding edges either on the inside or the outside.}\label{fig:rounding}
 \end{figure}
 
 \section{User Interface}

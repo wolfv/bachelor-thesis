@@ -30,7 +30,7 @@ Each of those steps will be discussed in detail in this section.
 
 While most motion planning for robots searches for the shortest path between two points (possibly avoiding obstacles in between), over time several \textit{complete coverage} algorithms have also been developed for a variety of applications. 
 
-One category of solutions for the surface coverage  was developed for robots that do not know the surroundings beforehand and use a variant of \textit{simultaneous localization and mapping} (SLAM) to gather knowledge of the environment. 
+%One category of solutions for the surface coverage  was developed for robots that do not know the surroundings beforehand and use a variant of \textit{simultaneous localization and mapping} (SLAM) to gather knowledge of the environment. 
 
 Coverage algorithms exist, among others, for household applications like autonomous vacuum cleaners or lawn mowers but also for specialized search and rescue robots. The requirements for those applications are different from that of a drawing robot. Key differences are: Online map generation, obstacle avoidance and dynamic update of the trajectory to omit moving obstacles, for example. In the case of the BeachBot the map (canvas) is generally known and empty, and moving obstacles are not a problem that the path generation has to be concerned with. The obstacles, however, can be represented in a drawing as empty (non-filled) areas. Another difference to most algorithms is that for the sand drawing purposes the filled area should not be crossed again -- the fill process should work from the inside to the outside.
 A survey of coverage algorithms is presented by H. Choset (2001) \cite{choset2001coverage}.
@@ -39,13 +39,13 @@ A survey of coverage algorithms is presented by H. Choset (2001) \cite{choset200
 
 For robot applications, the map often gets discretized into an occupancy grid of certain resolution, as in the case of the Backtracking Spiral Algorithm (BSA), introduced by E. Gonzalez et al.  (2005) \cite{gonzalez2005bsa}. The BSA fills the occupancy grid in a spiral motion. The resolution for the BeachBot would likely have to be chosen based on the width of the rake, which would limit the quality of the obtained result for drawing purposes (the edges would be jagged).
 
-This problem is solved in the algorithm introduced by Choi et al. (2009) \cite{choi2009online}, which also represents the maps as a similarly discretized environment but handles partially occupied cells by employing a contour following strategy as well as a spiral fill strategy.
+This problem is solved in the algorithm introduced by Choi et al. (2009) \cite{choi2009online}, which also represents the map as a similarly discretized environment but handles partially occupied cells by employing a contour following strategy as well as a spiral fill strategy.
 
 The Boustrophedon decomposition (Choset et al. 1998) \cite{choset1998coverage} works by creating an exact cellular decomposition (in the form of a trapezoidal decomposition) of the map. This reduces the problem of filling seperate, well-defined cells with a predefined motion (such as a back-and-forth fill) and connecting them.
 
-In agricultural applications an interesting algorithms  was found, which served as inspiration for the explorations presented in this thesis. T. Oksanen (2009) \citep{ROB:ROB20300} used the straight skeleton of a polygon to generate inset polygons. An optimization strategy is employed to find the shortest trajectory through the field by repeatedly offsetting the remainding shape and traversing all possible ways off filling the shape. The algorithm is relatively computationally intensive, what might be justified when using large agricultural machines but what was not necessary for the goals of this thesis, as the benefit of this optimization would be relatively small (i.e. the turn times for the BeachBot are neglibile). Apart from the optimizations presented by Oksanen, the fill strategy served as inspiration for the explorations presented in this thesis. 
+In agricultural applications an interesting algorithms  was found for driving over fields. T. Oksanen (2009) \citep{ROB:ROB20300} used the straight skeleton of a polygon to generate inset polygons. An optimization strategy is employed to find the shortest trajectory through the field by repeatedly offsetting the remainding shape and traversing all possible ways off filling the shape. The algorithm is relatively computationally intensive, what might be justified when using large agricultural machines but what was not necessary for the goals of this thesis, as the benefit of this optimization would be relatively small (i.e. the turn times for the BeachBot are neglibile). Apart from the optimizations presented by Oksanen, the fill strategy served as inspiration for the explorations of this thesis.
 
-Another field where trajectories have to be generated is in \textit{Computer Aided Machining} (CAM). The process of removing layers of material from a block of metal is quite similar (though usually from the outside to the inside) to what is achieved in this thesis. Many publications deal with the problem of multi-axis milling machines which are far more complex and are also able to move over the machined surface because the machining head can be lifted -- something that is not possible with an autonomous ground vehicle.
+Another field where trajectories have to be generated is in \textit{Computer Aided Machining} (CAM). The process of removing layers of material from a block of metal is quite similar (though usually from the outside to the inside) to what is achieved in this thesis. Many publications deal with trajectory generation for multi-axis milling machines which are far more complex and are also able to move over the machined surface because the tool head can be lifted -- something that is not possible with an autonomous ground vehicle.
 
 A smooth spiral filling is demonstrated by M. Held and C. Spielberger (2009) \cite{held2009smooth} for the high speed manufacturing of pockets without islands (islands can be thought of as non-filled areas). It is presented as alternative to conventional contour-parallel tool path generation. The generated fill however, consists of only one continous spiral, even in the case of a concave shape, thus driving with less distance between spiral revolutions than one tool width at certain points, which is less ideal for the BeachBot, as it will increase the driving time considerable more than in the case of high speed machining.
 
@@ -247,7 +247,7 @@ The algorithm is both displayed in Algorithm 1 and graphically in \autoref{fig:i
 \begin{figure}
 \centering
 \includegraphics[width=0.6\textwidth]{images/algorithms/spiral_fill/spiral_real.pdf}
-\caption{Generated spiral} \label{fig:gen_spiral}
+\caption{Generated spiral for a sample shape} \label{fig:gen_spiral}
 \end{figure}
 
 \clearpage
@@ -296,7 +296,7 @@ As previously defined, a drawing consists of the three different element types: 
 \caption{Possible entry- and exit vertices and direction of traversal for polylines and polygons. Note that the polygon could also be traversed in counterclockwise direction, and that any of the vertices are possible entry-exit-points.}\label{fig:connect}
 \end{figure}
 
-\subsection{Traveling Salesman Problem}
+\subsection{Travelling Salesman Problem}
 
 The task of connecting the drawing elements is similar to that of a Travelling Salesman Problem.
 The \textit{Travelling Salesman Problem} (TSP) is the problem of finding the minimum-weight Hamiltonian Circuit in a weighted graph. A weighted graph is a graph where every edge between two vertices has a certain weight associated. The Hamiltonian Circuit is defined as a tour through the graph that travels to every vertex exactly once forms a cycle. It is called travelling salesman problem because in the historical context the vertices were cities, the weights Euclidean distances and the salesman, seeking to minimize the distance travelled to do a round-trip through all the cities in a given tour, would seek to obtain a solution for this problem. However, one of the properties of the TSP that make this problem difficult to solve is that it is \textit{Non-deterministic Polynomial-time hard} (NP-hard) which means that, although the non-existence has not yet been proven, there is as of now no polynomial-time solution. If no heuristic is used, the amount of solutions that have to be searched in order to test all available possibilities is \enquote{$n!$}.

@@ -12,12 +12,14 @@ The installation procedure for the installation of the path generator program un
 \item If \texttt{cmake} was run successfully, \texttt{make} can produce either the python module by using the target \texttt{python/beachbot\_pathgen} or the standalone target, called \texttt{svg\_parser} by calling e.g. \texttt{make svg\_parser -j3}.
 \item If python version was built, starting the python server by calling \texttt{python python/server.py}.\\
 If standalone version was built, \texttt{./svg\_parser} will launch the standalone program.
+\item The HTML interface is accessed by opening the file \texttt{interface/index.html} in a recent version of the \textit{Firefox} or \textit{Chromium} web browser (server has to run).
+\item To change the drawing that is opened by the server, change the file \texttt{assets/fill\_test.svg}. All sample files are also located at \texttt{assets/*.svg}.
 \end{enumerate}
 \newpage
 \paragraph{Command Line Flags}
-
 Command line flags can either be set as flags when the program is executed or can be set in the config file (the default file is \texttt{config.cfg} and \texttt{pythoncfg.cfg} for the server).
 The list of allowed options is:
+\small \\
 \texttt{
   -h [ --help ]                        produce help message\\
   -f [ --filename ] arg                SVG File for parsing\\
@@ -28,11 +30,9 @@ The list of allowed options is:
                                        (e.g. 0.2 * PI)\\
   -m [ --max\_interpol\_distance ] arg   Max distance for points \\
   -d [ --display ]                     Open up the QT Window for inspection\\
-  -t [ --threshold\_round\_angle ] arg   Defines from which angle on it should be\\
-                                       rounded (or outer rounded)\\
+  -t [ --threshold\_round\_angle ] arg   Defines from which angle on it should be rounded (or outer rounded)\\
   -l [ --line\_distance ] arg           Line distance inside filled elements\\
-  --area\_deletion\_threshold arg        Maximum area of filling elements that \\
-                                       will get deleted \\
+  --area\_deletion\_threshold arg        Maximum area of filling elements that will get deleted \\
   -c [ --config\_file ] arg             Use a different config file\\
   --segmentation\_on arg                Turn on or off segmentation\\
   --text\_export\_filename arg          Filename for export to textfile\\
@@ -41,13 +41,12 @@ The list of allowed options is:
   --field\_height arg                   Height of field\\
   --field\_offset arg                   Offset (margin) of field\\
   --segment\_offset arg                 Offset of Segment (from partitioning)\\
-  --no\_tree\_ordering                   Disables ordering of the tree (Useful \\
-                                       when manual image from Timo!)\\
-  --number\_segments\_bezier\_connect arg Define the number of segments for bezier\\
-                                       interpolation)\\
-  --stop\_go\_outer                      Round (and outer round) outer contours \\
+  --no\_tree\_ordering  Disables ordering of the tree (Useful when manual image from Timo!)\\
+  --number\_segments\_bezier\_connect arg Define the number of segments for bezier interpolation)\\
+  --stop\_go\_outer                      Round (and outer round) outer contours
                                        or stop-turn-go cycle?\\
-  --round\_connection\_threshold         Threshold for rounding connections \\
-                                       (otherwise just place point) [squared \\
+  --round\_connection\_threshold         Threshold for rounding connections 
+                                       (otherwise just place point) [squared 
                                        length of point distance]
 }
+\normalsize

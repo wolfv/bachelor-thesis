@@ -57,24 +57,34 @@
 \projectYear{\the\year}
 \begin{document}
 
+
 \maketitle
 \pagestyle{plain}
 \pagenumbering{roman}
+
 
 \author{Wolf Vollprecht}
 \title{Path Generation for a Mobile Drawing Robot}
 
 %\input{chapters/preface}
 %\cleardoublepage
+
+\pagestyle{empty}
+\input{chapters/declaration.tex}
+
+
+\setcounter{tocdepth}{2}
+
+\tableofcontents
+
+\cleardoublepage
 \input{chapters/abstract}
 
 \cleardoublepage
 \input{chapters/acknowledgement}
 
-%\input{chapters/symbols}
-%\cleardoublepage
-
-\tableofcontents
+\input{chapters/symbols}
+\cleardoublepage
 
 \pagestyle{fancy}
 \pagenumbering{arabic}
