@@ -74,7 +74,15 @@ CGAL contains algorithms for the straight skeleton methods\cite{cgal:c-sspo2-14a
 
 After the complete trajectory for the drawing process was evaluated and, eventually modified, in the graphical user interface, the post processing step does two enhancements.
 
-First, the edges of the trajectory are rounded. The fill elements are receiving an inner rounding, whereas the outer elements (polygon boundaries) are rounded by analysing a threshold angle. If the angle is too sharp, the trajectory will create an outer loop so that the edges will stay sharp (illustrated in \autoref{fig:rounding}. Otherwise, the rounding is also on the inner side. In the next step, all connecting curves are discretized to polylines and the complete trajectory is equally spaced with points and corresponding rake states, so that it can easily be handled by the \textit{Path Converter} or directly be passed to the point following controller of the BeachBot.
+First, the edges of the trajectory are rounded. The fill elements are receiving an inner rounding, whereas the outer elements (polygon boundaries) are rounded by analysing a threshold angle. If the angle is too sharp, the trajectory will create an outer loop so that the edges will stay sharp (illustrated in \autoref{fig:rounding}. Otherwise, the rounding is also on the inner side. Both inner and outer rounding are created by applying vector math to the problem. For the outer rounding, vectors along both tangents are elongated until the distance between the endpoints fits an arc with radius $r$. While this works for the general case, it shows undesired behaviour for small angles. The tangents have to be very far elongated until the arc fits between, approaching an elongation length of inifinity for a 0 degree angle between the tangents. This behaviour is obviously undesired. Therefore, an implementation based on the spiro connections between elements was thought of but not yet implemented. 
+
+In the next step, all connecting curves are discretized to polylines and the complete trajectory is equally spaced with points and corresponding rake states, so that it can easily be handled by the \textit{Path Converter} or directly be passed to the point following controller of the BeachBot.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{images/implementation/rounding_edges.pdf}
+\caption{Rounding edges either on the inside or the outside.}
+\end{figure}
 
 \section{User Interface}
 

@@ -28,25 +28,41 @@ Each of those steps will be discussed in detail in this section.
 
 \subsection{Related Work}
 
-Over time several complete coverage algorithms have been developed, and some distinctions can be made. 
+While most motion planning for robots searches for the shortest path between two points (possibly avoiding obstacles in between), over time several \textit{complete coverage} algorithms have also been developed for a variety of applications. 
 
 One category of solutions for the surface coverage  was developed for robots that do not know the surroundings beforehand and use a variant of \textit{simultaneous localization and mapping} (SLAM) to gather knowledge of the environment. 
 
-Coverage algorithms exist for household applications like autonomous vacuum cleaners or autonomous lawn mowers but also search and rescue robots usually and they  do not care if they visit the same spot twice. The target for those algorithms is rather to achieve complete coverage of an previously unknown terrain in sensible time. Usually, the complete surface coverage algorithms in are also connected with online map generation techniques \textit{SLAM}, whereas the path generation for the BeachBot should happen offline.
+Coverage algorithms exist, among others, for household applications like autonomous vacuum cleaners or lawn mowers but also for specialized search and rescue robots. The requirements for those applications are different from that of a drawing robot. Key differences are: Online map generation, obstacle avoidance and dynamic update of the trajectory to omit moving obstacles, for example. In the case of the BeachBot the map (canvas) is generally known and empty, and moving obstacles are not a problem that the path generation has to be concerned with. The obstacles, however, can be represented in a drawing as empty (non-filled) areas. Another difference to most algorithms is that for the sand drawing purposes the filled area should not be crossed again -- the fill process should work from the inside to the outside.
+A survey of coverage algorithms is presented by H. Choset (2001) \cite{choset2001coverage}.
 
-However, in agricultural applications some interesting algorithms have been found, which served as inspiration for the explorations presented in this thesis. Especially \citep{ROB:ROB20300}, who hinted at exploiting the straight skeleton algorithm to generate the inset polygons. An optimization strategy is employed to find the shortest trajectory through the field by repeatedly offsetting the remainding shape and traversing all possible ways off filling the shape. The algorithm is relatively computationally intensive, what might be justified when using large agricultural machines but what was not necessary for the goals of this thesis as the benefit of this optimization would be relatively small.
+%The target for those algorithms is rather to achieve complete coverage of an previously unknown terrain in sensible time. Usually, these complete surface coverage algorithms are also paired with online map generation techniques \textit{SLAM}, whereas the path generation for the BeachBot should happen offline. The algorithms also are usually not optimized to prevent visiting the same spot twice. 
 
-Another field where trajectories have to be generated is in \textit{Computer Aided Machining} (CAM). The process of removing layers of material from a block of metal is quite similar (though inverse, usually) to what is achieved in this thesis. Many publications deal with the problem of multi-axis milling machines which are far more complex and are also able to move over the machined surface without problem because the machining head can be lifted -- something that is not possible with an autonomous ground vehicle.
+For robot applications, the map often gets discretized into an occupancy grid of certain resolution, as in the case of the Backtracking Spiral Algorithm (BSA), introduced by E. Gonzalez et al.  (2005) \cite{gonzalez2005bsa}. The BSA fills the occupancy grid in a spiral motion. The resolution for the BeachBot would likely have to be chosen based on the width of the rake, which would limit the quality of the obtained result for drawing purposes (the edges would be jagged).
 
-One interesting publication in the CAM field is \cite{kao1998optimal} that presents a method to reduce gaps that are present when simply offsetting a polygon with spirals. The presented method could be a possible future improvement to the spiral fill algorithm of \autoref{sec:spiral_fill}.
+This problem is solved in the algorithm introduced by Choi et al. (2009) \cite{choi2009online}, which also represents the maps as a similarly discretized environment but handles partially occupied cells by employing a contour following strategy as well as a spiral fill strategy.
 
-The OpenCAM library has also been inspected...
+The Boustrophedon decomposition (Choset et al. 1998) \cite{choset1998coverage} works by creating an exact cellular decomposition (in the form of a trapezoidal decomposition) of the map. This reduces the problem of filling seperate, well-defined cells with a predefined motion (such as a back-and-forth fill) and connecting them.
+
+In agricultural applications an interesting algorithms  was found, which served as inspiration for the explorations presented in this thesis. T. Oksanen (2009) \citep{ROB:ROB20300} used the straight skeleton of a polygon to generate inset polygons. An optimization strategy is employed to find the shortest trajectory through the field by repeatedly offsetting the remainding shape and traversing all possible ways off filling the shape. The algorithm is relatively computationally intensive, what might be justified when using large agricultural machines but what was not necessary for the goals of this thesis, as the benefit of this optimization would be relatively small (i.e. the turn times for the BeachBot are neglibile). Apart from the optimizations presented by Oksanen, the fill strategy served as inspiration for the explorations presented in this thesis. 
+
+Another field where trajectories have to be generated is in \textit{Computer Aided Machining} (CAM). The process of removing layers of material from a block of metal is quite similar (though usually from the outside to the inside) to what is achieved in this thesis. Many publications deal with the problem of multi-axis milling machines which are far more complex and are also able to move over the machined surface because the machining head can be lifted -- something that is not possible with an autonomous ground vehicle.
+
+A smooth spiral filling is demonstrated by M. Held and C. Spielberger (2009) \cite{held2009smooth} for the high speed manufacturing of pockets without islands (islands can be thought of as non-filled areas). It is presented as alternative to conventional contour-parallel tool path generation. The generated fill however, consists of only one continous spiral, even in the case of a concave shape, thus driving with less distance between spiral revolutions than one tool width at certain points, which is less ideal for the BeachBot, as it will increase the driving time considerable more than in the case of high speed machining.
+
+An improved spiral machining method is presented by M. Held and and C. Spielberger (2014) \cite{held2014improved} which, by using a heuristic, decomposes complex pockets with islands and applies a spiral fill to the decomposed parts. It has, however, the same drawbacks regarding the tool path distance as \cite{held2009smooth} for the case of the BeachBot.
+
+%In the CAM field, a novel spiral fill technique is presented by X. Li (2014) \cite{li2014novel}, where the spiral is rounded by applying a variable
+
+%One interesting publication in the CAM field is \cite{kao1998optimal} that presents a method to reduce gaps that are present when simply offsetting a polygon with spirals. The presented method could be a possible future improvement to the spiral fill algorithm of \autoref{sec:spiral_fill}.
 
 \subsection{Mathematical Discussion of Polygons}
 
-The following is a mathematical definition of a polygon (taken from \cite{coxeter1967geometry}):
+The following is a mathematical definition of a polygon as given by H. Coxeter (1967)\cite{coxeter1967geometry}:
 
-\enquote{A polygon may be defined as consisting of a number of points (called vertices) and an equal number of line segments (called sides), namely a cyclically ordered set of points in a plane, with no three successive points collinear, together with the line segments joining consecutive pairs of the points. In other words, a polygon is closed broken line lying in a plane}.
+\begin{quotation}
+A polygon may be defined as consisting of a number of points (called vertices) and an equal number of line segments (called sides), namely a cyclically ordered set of points in a plane, with no three successive points collinear, together with the line segments joining consecutive pairs of the points. In other words, a polygon is closed broken line lying in a plane.
+
+\end{quotation}
 
 Polygons can have several properties that simplify or complicate their treatment:
 
@@ -256,7 +272,7 @@ Because the Zig Zag filling can be thought of as one continuous line, all genera
 \end{subfigure}
 \par\bigskip
 \begin{subfigure}[b]{0.9\textwidth}
-\includegraphics[width=\textwidth]{images/path_planning/zigzag_2.pdf}
+\includegraphics[width=\textwidth]{images/path_planning/zigzag_2_wo_conn.pdf}
 \end{subfigure}
 \caption{Zig Zag filling of two shapes. The first shape is convex, the second concave. The second shape is partitioned into convex elements using the optimal convex partitioning, which are separately filled with the Zig Zag fill.}
 \end{figure}
@@ -275,8 +291,9 @@ As already mentioned, to finally create a drawing all elements have to be connec
 As previously defined, a drawing consists of the three different element types: lines, polygons and filled polygons. Lines and polygons differ in the way they can be connected, as illustrated in \autoref{fig:connect}. A line has two free connection points and is traversed from one end to the other. A polygon however can be entered at any vertex, but can only be exited at the same vertex so that it is closed. Filled polygons work the same as the regular polygon in that sense, since the spiral and the zig zag filling create a polyline which is inserted into the polygon.
 
 \begin{figure}
+\centering
 \includegraphics[width=0.8\textwidth]{images/path_planning/traversal.pdf}
-\caption{Possible entry- and exit vertices and direction of traversal for polylines and polygons. Note that the polygon could also be traversed in counterclockwise direction.}\label{fig:connect}
+\caption{Possible entry- and exit vertices and direction of traversal for polylines and polygons. Note that the polygon could also be traversed in counterclockwise direction, and that any of the vertices are possible entry-exit-points.}\label{fig:connect}
 \end{figure}
 
 \subsection{Traveling Salesman Problem}
@@ -307,7 +324,7 @@ The Lin-Kernighan heuristic is a local search optimization algorithm that works 
 
 An extension of the 2--opt move is the 3--opt move, where connections between 6 vertices (3 connections) are removed and all new connection possibilities are evaluated. The Lin-Kernighan algorithm extends this even further and works with $\lambda\text{--opt}$ moves. This generally degrades the runtime to $\mathcal{O}(n^\lambda)$. Therefore the Lin-Kernhighan algorithm uses variable $\lambda\text{-opt}$ moves: starting at $\lambda=2$ at each step is evaluated if $\lambda$ should be increased by one or not through applying a series of tests. At a stopping condition this process ends.
 
-The author, Keld Helsgaun, also demonstrates how the specific LKH implementation is suited to solve the equality generalized\citep{helsgaun2013equality} as well as the clustered TSP\cite{helsgaun2014solving}. A combination of both cases is used in this thesis to find a high quality tour through the drawing of.
+The author, Keld Helsgaun, also demonstrates how the specific LKH implementation is suited to solve the equality generalized\citep{helsgaun2013equality} as well as the clustered TSP\cite{helsgaun2014solving}. A combination of both cases is used by this thesis to find a high quality tour through the drawing.
 
 The LKH solver uses the \textit{TSPLIB}\footnote{\url{http://www.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/}} file format as interface to read and write the problems. The TSPLIB is a benchmark collection of various traveling salesman problems, where some of them have known optimal solutions.
 
@@ -342,7 +359,7 @@ All other indices have to be saved beforehand and need to be reapplied now: The 
  
 \paragraph{Enforcing Connections} If the found solution is not sufficient or satisfying, the user might want to alter the tour. This works through the enforcement of connections between two points on the elements. If two elements have an enforced connection, they can be represented by a single line with entry and exit point and an unknown traversal direction. This is due to the fact that if one point on an element is connected, there is a trivially known other point that is the last available connection point. For example, if a polygon has an enforced connection at vertex $v_i$, it is known that $v_i$ will also be either start- or endpoint for the connected elements because the polygon loop has to be closed. Similarly, if the first or last point of a polyline has an enforced connection the other is the remaining free connection point that can be used to connect to other elements. Thus, instead of the single elements, the start and endpoint of said \enquote{imaginary} polyline are added to the distance matrix and the tour is completed during the post processing. An element with two enforced connections is completely ignored in the distance matrix, since it has no free connection points.
 
-\paragraph{Containment Properties}
+\paragraph{Containment Properties}\label{sec:cont}
 
 A polygon can enclose other elements, such as a polygon or a set of lines. Generally, to avoid crossing too many lines, it is undesired to enter this enclosing polygon twice. Therefore the weights of the polygon vertices towards the inner elements are set to infinity. Thus the tour will always start on the inside and continue to travel further outside.
 
@@ -416,100 +433,4 @@ D=\left(
 \end{itemize}}\label{tour_output_eq}
 \end{subfigure}
 \caption{Drawing, TSP distance matrix and final tour for a simple drawing}\label{simple_tsp_fig}
-\end{figure}
-
-\clearpage
-\section{Smooth Line Connections}
-
-While not required by the robot kinematics of the BeachBot (which can turn on the spot), generating smooth connections 
-makes the developed algorithms generalizable for four-wheeled vehicles.
-It is also necessary to constrain the curvature for the path converter that translates the generated rake path into a robot path that is drivable by the bot. If the curvature at a given point of the connection is too high, it is not possible for the path converter to find a converging solution which makes tedious manual work needed to adjust the curvature of the connections until the converter is able to find a solution. The rounded connections would also create a nice visual effect for spectators.
-
-Ideally a way would have to be found that limits the curvature of the connection path.
-
-Curvature is defined as the inverse of the radius of the circle that the tangent produces at any given point in the curve. For a two dimensional curve, the curvature $\kappa$ is defined as 
-$$\kappa = \frac{|x'y''-y'x''|}{(x'^2+y'^2)^{3/2}}$$
-
-
-\subsubsection{Beziér Splines}
-
-A first approach to generate more curved connections was to use Beziér splines.
-The start- and endpoint of the beziér spline is trivially found as the start- and endpoint of the connection. As first solution, we used beziér splines of 3rd order. Beziér splines of 3rd order only yield 2 control points, which can, by moving them along the desired tangent, easily be used to create a connection that is smooth in the start and endpoint. However, the curvature for the complete curve can not be set because the two control points offer to few degrees of freedom. A beziér curve of 5th degree (quintic) has enough DOF to constrain the connection in terms of curvature.
-
-The quintic Beziér curve consists of 6 control points $P_0 ... P_5$ that define the shape of the curve. $P_0$ and $P_5$ are trivially chosen because they coincide with the start- respectively the endpoint of the curves that should be connected. $P_1$ and $P_4$ are also easy to choose as they have to lie on the tangents of the curves that should be connected. $P_2$ and $P_3$ on the other hand are more difficult to obtain. Even after an extensive search through available literature it remained unclear if an analytical solution to this problem can be found or not, since the equation for curvature is getting quite complicated if expanded. In \cite{doi:10.1137/1.9781611971521.ch5} three approaches to generate beziér splines with monotone curvature are discussed. \cite{choi2010piecewise} uses piecewise 3rd degree bezier curves to create a curvature and corridor constrained trajectory.  [to be expanded]
-
-\subsubsection{Spiro Splines}
-
-Spiro splines, introduced by R. Levien \cite{levien2009spiral} are a different approach to designing fair curves, initially for the purpose of designing fonts. They have several properties which make them well-suited for the task at hand:
-
-They offer 4 different control points to control the shape of the curve. In contrast to beziér curves, spiro spline control points are always passed by the generated curve, whereas the bezier curve only goes through the first and last control point. The 4 different control points, denoted by a single character, of spiro splines are:
-
-\begin{itemize}
-\item[\texttt{v}] Corner point
-\item[\texttt{c}] A $G^2$ continous constraint. The curvature  on the left side is the same as on the right side ($\kappa_l = \kappa_r$).
-\item[\texttt{o}] Similiar to \texttt{c}, a $G^4$ continous constraint. Not only $\kappa_l = \kappa_r$ is true, but also the first and second derivative of the curvature is constrained ($\kappa_l' = \kappa_r'$, $\kappa_l'' = \kappa_r''$).
-\item[\texttt{[}] A straight-to-curved control point that acts like a tangent constraint in this case.
-\item[\texttt{]}] A curved-to-straight control point that also acts like a tangent constraint here.
-\end{itemize}
-
-The author, Raph Levien, has licensed his implementation \footnote{libspiro: \url{http://www.levien.com/spiro/} } of spiro splines under the GPLv2, which makes it possible to be used by this thesis. The implementation is capable of being used for realtime editing. That guarantees that the curve generation would not be the bottleneck of the application in terms of time consumption. The output of the library is a set of Beziér curves which are easier to handle in regular graphics programs.
-
-\paragraph{Heuristic for Setting the Control Points}
-
-To find suitable locations for the spiro spline control points, a heuristic was used.
-
-All connection constraints can be expressed by 5 variables: Connection length ($d$), tangents with angles $\alpha$ and $\beta$ and the curvature limit $\kappa$, as shown in \autoref{fig:connection_vars}. For the calculation of the control points, the difference between the two angles was defined as $\delta = \alpha - \beta$. It equals the angle between the two tangent vectors. 
-
-Finding the first 4 points of the curve is straightforward: The first control point is a corner point at the endpoint of the first element. The second point is a straight-to-curve point, that is positioned an infinitesimally small distance in the direction of the tangent from the first point. This constrains the \enquote{outgoing} tangent. Vice versa, the same control points are set at the end of the curve, where the element that is connected with begins. Thus both tangent constrains are fullfilled. Because the spiros do not offer a direct way of setting the maximum and minimum curvatures, zero to two more control points have to be added. The curvature can be limited by positioning a $G^2$ control point at distance $2 * R$ from the start- and endpoint. This limits the curvature to the left and to the right to be the same. Since the highest curvature between the startpoint and the $G^2$ point would be a circular arc with radius $R$ this limits the curvature to $\kappa = 1/R$, as long as both $G^2$ points are keeping a distance of $2*R$ as well.
-
-The heuristic differentiates 3 cases:
-
-If the both tangent vectors $\alpha$ and $\beta$ have a similar direction and the circle that is described by them and $d$ has a radius that is in the range of $R < r < 2*R$ then no intermediate $G^2$ points are set because the connection will already be smooth and optimal.
-
-Otherwise, the $G^2$ points are set by elongating the tangent vector to $2*R$ and rotating it by $0.5 * \alpha$. This is done to reduce the size of the resulting curve, which is demonstrated in .. Fig ...
-
-As discussed, the two $G^2$ points, called $c_1$ and $c_2$ are closer than $2 * R$ to each other, the positions have to be recalculated. This happens by rotating the $c_1$ and $c_2$ points gradually in different direction until positions are found that conform to the distance constraint. By rotating both points about the same angle, a symmetry is kept.
-
-If the distance $d$ is smaller than 
-
-\begin{figure}
-
-\usetikzlibrary{calc}
-
-\definecolor{cb3b3b3}{RGB}{179,179,179}
-\definecolor{ccccccc}{RGB}{204,204,204}
-\definecolor{cffffff}{RGB}{255,255,255}
-
-\begin{tikzpicture}[y=0.80pt,x=0.80pt,yscale=-1, inner sep=0pt, outer sep=0pt]
-\centering
-  \path[draw=black,line join=miter,line cap=butt,line width=0.800pt]
-    (96.0814,121.3474) -- (115.9166,172.6195) -- (330.7355,172.6195) --
-    (371.5287,119.1019);
-  \path[draw=black,line join=miter,line cap=butt,line width=0.800pt]
-    (115.9129,172.6241) -- (69.8665,172.6241);
-  \path[draw=cb3b3b3,dash pattern=on 0.34pt off 0.17pt,line join=miter,line
-    cap=butt,miter limit=4.00,dash phase=0.201pt,line width=0.800pt]
-    (330.6888,172.6195) -- (366.5496,172.6195);
-  \path[cm={{1.45393,0.0,0.0,1.45393,(-471.01666,-377.22731)}},draw=ccccccc,miter
-    limit=4.00,line width=0.550pt] (564.5997,360.8878)arc(-52.961:0.593:21.466);
-  \path[cm={{0.52395,0.0,0.0,0.52395,(41.81533,-25.47312)}},draw=cb3b3b3,miter
-    limit=4.00,dash phase=0.960pt,line width=1.527pt]
-    (94.9543,377.5908)arc(179.987:249.624:46.467);
-  \path[fill=black,line width=0.800pt] (94.482018,167.26112) node[above right]
-    (text4046) {$\alpha$};
-  \path[fill=black] (337.53653,168.90082) node[above right] (text4046-2)
-    {$\beta$};
-  \path[draw=black,line join=miter,line cap=butt,line width=0.800pt]
-    (114.8543,177.9195) -- (114.8543,193.7975);
-  \path[draw=black,line join=miter,line cap=butt,line width=0.800pt]
-    (114.8543,186.1205) -- (330.7957,186.1205);
-  \path[draw=black,line join=miter,line cap=butt,line width=0.800pt]
-    (330.7957,177.9195) -- (330.7957,193.7975);
-  \path[fill=cffffff,line width=0.800pt,rounded corners=0.0000cm]
-    (199.5575,177.5072) rectangle (228.2820,192.5707);
-  \path[fill=black,line width=0.800pt] (205.50471,192.37236) node[above right]
-    (text4081) {d};
-\end{tikzpicture}
-\caption{Variables for the connection between two elements}
-\label{fig:connections_vars}
 \end{figure}
