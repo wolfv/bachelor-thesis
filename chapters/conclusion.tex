@@ -17,7 +17,7 @@ The SVG parser works reliably for simple SVG drawings, which covers everything n
 To conclude, the main work of this thesis has been:
 
 \begin{itemize}
-\item Implement SVG parsing infrastructure to use arbitrary SVG drawings as input
+\item Implementing SVG parsing infrastructure to use arbitrary SVG drawings as input
 \item Evaluating different fill mechanisms and implementing two algorithms
 \item Adapting a generic Travelling Salesman Problem solver for arbitrary, polyline and polygon based drawings
 \item Using spiro splines as tool to generate smooth connections between drawing elements
@@ -50,6 +50,10 @@ If an intersection is evident, the polygon should get an offset which can be cal
 The post processing has one unfortunate drawback if the angle for the outer rounding converges to zero the length of the outer rounding goes to infinity.
 
 To counter this effect and to use a general solution, the post processing step should use the same spiro control point heuristic to create the inner and outer roundings as used for the curvature limited connections. This works well as seen in the \textit{Lion} drawing.
+
+\paragraph{More Robust Heuristic for Spiro Splines}
+
+In the general case the spiro spline heuristic that was used produces good results. However, in some edgecases the numerically obtained solution by the spiro library results in \enquote{Not a Number} values, which is due to erroneous placing of the control points. These edge cases will have to be closely inspected and resolved, for what the time was missing.
 
 \paragraph{Missing Features in the User Interface} Some features are still missing from the user interface due to a lack of time: 
 

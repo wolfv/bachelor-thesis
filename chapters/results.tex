@@ -128,14 +128,14 @@ Various spiral fills are demonstrated on the ASL logo and a typesetted ASL lette
 \clearpage
 \subsection{The GNU Logo}
 
-As case study, the \textit{GNU} Logo is presented. The emblematic gnu head is further simplified by manually tracing the outlines and removing superflous details with which the BeachBot would have difficulties to reproduce. With the simplified image as input, the path generator first generates a fill for the horns and the beard and then connects all elements by support trajectories.
+As case study, the \textit{GNU} Logo is presented. The emblematic gnu head is further simplified by manually tracing the outlines and removing superflous details which the BeachBot would have difficulties to reproduce. With the simplified image as input, the path generator first generates a fill for the horns and the beard and then connects all elements by support trajectories.
 
 \begin{figure}[h]
 \centering
 \begin{subfigure}[t]{0.45\textwidth}
 \centering
 	\includegraphics[width=\textwidth]{images/results/gnu/logo.pdf}
-	\caption{The original gnu logo. Source: \url{https://www.gnu.org/graphics/heckert_gnu.svg}}
+	\caption{The original GNU logo. Source: \url{https://www.gnu.org/graphics/heckert_gnu.svg}}
 \end{subfigure}~
 \begin{subfigure}[t]{0.45\textwidth}
 \centering
@@ -166,3 +166,35 @@ As case study, the \textit{GNU} Logo is presented. The emblematic gnu head is fu
 %\end{subfigure}
 %\caption{A drawing depicting the main character of the upcoming \textit{Maleficent} (\textcopyright Disney) movie. First, a vector graphic has to be manually created, using a bitmap as reference. Based on the vector graphic, a trajectory can be generated.}
 %\end{figure}
+
+\clearpage
+\subsection{Zig Zag Tests}
+
+Two simple drawings were created to test the Zig Zag fill mechanism as well. Note that in the second, the interelement connections are misguided which is a bug that has to be fixed in a future version of the program. The convex partitioning also does not produce favorable results for more complex shapes which results in smaller segments that get deleted when insetted by the applied margin.
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+	\includegraphics[width=\textwidth]{images/results/house_moon.pdf}
+
+\end{subfigure}~
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+	\includegraphics[width=\textwidth]{images/results/house_test.pdf}
+\end{subfigure}
+	\caption{Two houses and a round moon filled by Zig Zag fill.}
+\end{figure}
+\begin{figure}[h]
+
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+	\includegraphics[width=\textwidth]{images/results/crown.pdf}
+\end{subfigure}
+\begin{subfigure}[t]{0.45\textwidth}
+\centering
+	\includegraphics[width=\textwidth]{images/results/crown_gen.pdf}
+\end{subfigure}
+
+\caption{A crown as example for a shape that is partitioned into 4 segments. Note that since the polygon is \textit{monotone} with respect to the vertical line, partitioning is not required (it is, however, required for a horizontal filling).}
+\end{figure}
